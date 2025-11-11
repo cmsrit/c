@@ -1,0 +1,63 @@
+import java.math.BigInteger;
+import java.security.SecureRandom;
+
+public class RSA {
+    private static final int BIT_LENGTH = 2048;
+    private static final SecureRandom random = new SecureRandom();
+
+    public static class RSAKeyPair {
+        public BigInteger publicKey;
+        public BigInteger privateKey;
+        public BigInteger modulus;
+
+        public RSAKeyPair(BigInteger publicKey, BigInteger privateKey, BigInteger modulus) {
+            this.publicKey = publicKey;
+            this.privateKey = privateKey;
+            this.modulus = modulus;
+        }
+    }
+
+    public static RSAKeyPair generateKeyPair() {
+        BigInteger p = BigInteger.probablePrime(BIT_LENGTH / 2, random);
+        BigInteger q = BigInteger.probablePrime(BIT_LENGTH / 2, random);
+        BigInteger n = p.multiply(q);
+        BigInteger phi = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
+        BigInteger e = new BigInteger("65537");
+        BigInteger d = e.modInverse(phi);
+        return new RSAKeyPair(e, d, n);
+    }
+
+    public static BigInteger encrypt(String message, BigInteger publicKey, BigInteger modulus) {
+        BigInteger m = new BigInteger(message.getBytes());
+        return m.modPow(publicKey, modulus);
+    }
+
+    public static String decrypt(BigInteger cipherText, BigInteger privateKey, BigInteger modulus) {
+        BigInteger m = cipherText.modPow(privateKey, modulus);
+        return new String(m.toByteArray());
+    }
+
+    public static void main(String[] args) {
+        try {
+            // Generate RSA Key Pair
+            RSAKeyPair keyPair = generateKeyPair();
+
+            BigInteger publicKey = keyPair.publicKey;
+            BigInteger privateKey = keyPair.privateKey;
+            BigInteger modulus = keyPair.modulus;
+
+            String message = "Hello, RSA!";
+            System.out.println("Original Message: " + message);
+
+            // Encrypt the message
+            BigInteger cipherText = encrypt(message, publicKey, modulus);
+            System.out.println("Encrypted Message (cipher text): " + cipherText);
+
+            // Decrypt the message
+            String decryptedMessage = decrypt(cipherText, privateKey, modulus);
+            System.out.println("Decrypted Message: " + decryptedMessage);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
