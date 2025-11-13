@@ -33,18 +33,31 @@ public class Playfair {
     }
 
     static void buildMatrix(String key) {
-        boolean[] used = new boolean[26];
-        used['J' - 'A'] = true;
+    boolean[] used = new boolean[26];
+    used['J' - 'A'] = true;
 
-        StringBuilder s = new StringBuilder(key);
-        for (char c = 'A'; c <= 'Z'; c++)
-            if (!used[c - 'A']) s.append(c);
+    StringBuilder s = new StringBuilder();
 
-        int k = 0;
-        for (int i = 0; i < 5; i++)
-            for (int j = 0; j < 5; j++)
-                mat[i][j] = s.charAt(k++);
+    for (char c : key.toCharArray()) {
+        if (!used[c - 'A']) {
+            used[c - 'A'] = true;
+            s.append(c);
+        }
     }
+
+    for (char c = 'A'; c <= 'Z'; c++) {
+        if (!used[c - 'A']) {
+            used[c - 'A'] = true;
+            s.append(c);
+        }
+    }
+
+    int k = 0;
+    for (int i = 0; i < 5; i++)
+        for (int j = 0; j < 5; j++)
+            mat[i][j] = s.charAt(k++);
+}
+
 
     static int[] pos(char c) {
         for (int i = 0; i < 5; i++)
