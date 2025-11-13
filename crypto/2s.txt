@@ -1,0 +1,77 @@
+import java.util.*;
+
+public class Playfair {
+    static char[][] mat = new char[5][5];
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Key: ");
+        String key = clean(sc.nextLine());
+
+        System.out.print("Plaintext: ");
+        String pt = prepare(clean(sc.nextLine()));
+
+        buildMatrix(key);
+
+        System.out.println("Encrypted: " + encrypt(pt));
+    }
+
+    static String clean(String s) {
+        return s.toUpperCase().replaceAll("[^A-Z]", "").replace("J", "I");
+    }
+
+    static String prepare(String s) {
+        StringBuilder r = new StringBuilder();
+        for (int i = 0; i < s.length(); i++) {
+            r.append(s.charAt(i));
+            if (i + 1 < s.length() && s.charAt(i) == s.charAt(i + 1))
+                r.append('X');
+        }
+        if (r.length() % 2 == 1) r.append('X');
+        return r.toString();
+    }
+
+    static void buildMatrix(String key) {
+        boolean[] used = new boolean[26];
+        used['J' - 'A'] = true;
+
+        StringBuilder s = new StringBuilder(key);
+        for (char c = 'A'; c <= 'Z'; c++)
+            if (!used[c - 'A']) s.append(c);
+
+        int k = 0;
+        for (int i = 0; i < 5; i++)
+            for (int j = 0; j < 5; j++)
+                mat[i][j] = s.charAt(k++);
+    }
+
+    static int[] pos(char c) {
+        for (int i = 0; i < 5; i++)
+            for (int j = 0; j < 5; j++)
+                if (mat[i][j] == c) return new int[]{i, j};
+        return null;
+    }
+
+    static String encrypt(String s) {
+        StringBuilder out = new StringBuilder();
+        for (int i = 0; i < s.length(); i += 2) {
+            char a = s.charAt(i), b = s.charAt(i + 1);
+            int[] A = pos(a), B = pos(b);
+
+            if (A[0] == B[0]) { // same row
+                out.append(mat[A[0]][(A[1] + 1) % 5]);
+                out.append(mat[B[0]][(B[1] + 1) % 5]);
+            }
+            else if (A[1] == B[1]) { // same col
+                out.append(mat[(A[0] + 1) % 5][A[1]]);
+                out.append(mat[(B[0] + 1) % 5][B[1]]);
+            }
+            else { // rectangle
+                out.append(mat[A[0]][B[1]]);
+                out.append(mat[B[0]][A[1]]);
+            }
+        }
+        return out.toString();
+    }
+}
