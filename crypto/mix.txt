@@ -1,0 +1,91 @@
+// CryptoSuiteDemo.java
+import java.security.*;
+import javax.crypto.*;
+import javax.crypto.spec.*;
+import java.util.*;
+
+public class CryptoSuiteDemo {
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) throws Exception {
+        System.out.println("=== Crypto Suite Demo ===");
+        System.out.println("1. RSA Encryption/Decryption");
+        System.out.println("2. DES Encryption/Decryption (legacy)");
+        System.out.println("3. AES Encryption/Decryption");
+        System.out.print("Choose (1-3): ");
+        int choice = scanner.nextInt();
+        scanner.nextLine(); // consume newline
+
+        switch (choice) {
+            case 1 -> demoRSA();
+            case 2 -> demoDES();
+            case 3 -> demoAES();
+            default -> System.out.println("Invalid choice!");
+        }
+    }
+
+    // ---------------- RSA ----------------
+    private static void demoRSA() throws Exception {
+        System.out.println("\n--- RSA Demo ---");
+        String plaintext = "Hello RSA!";
+        KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
+        kpg.initialize(2048);
+        KeyPair kp = kpg.generateKeyPair();
+
+        Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPWithSHA-256AndMGF1Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, kp.getPublic());
+        byte[] encrypted = cipher.doFinal(plaintext.getBytes());
+        String encoded = Base64.getEncoder().encodeToString(encrypted);
+        System.out.println("Encrypted (Base64): " + encoded);
+
+        cipher.init(Cipher.DECRYPT_MODE, kp.getPrivate());
+        byte[] decrypted = cipher.doFinal(Base64.getDecoder().decode(encoded));
+        System.out.println("Decrypted: " + new String(decrypted));
+    }
+
+    // ---------------- DES ----------------
+    private static void demoDES() throws Exception {
+        System.out.println("\n--- DES Demo (legacy) ---");
+        String plaintext = "Hello DES!";
+
+        KeyGenerator kg = KeyGenerator.getInstance("DES");
+        SecretKey key = kg.generateKey();
+
+        byte[] iv = new byte[8];
+        new SecureRandom().nextBytes(iv);
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+        Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+        byte[] encrypted = cipher.doFinal(plaintext.getBytes());
+        System.out.println("Encrypted (Base64): " + Base64.getEncoder().encodeToString(encrypted));
+
+        cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
+        byte[] decrypted = cipher.doFinal(encrypted);
+        System.out.println("Decrypted: " + new String(decrypted));
+    }
+
+    // ---------------- AES ----------------
+    private static void demoAES() throws Exception {
+        System.out.println("\n--- AES Demo ---");
+        String plaintext = "Hello AES!";
+
+        KeyGenerator kg = KeyGenerator.getInstance("AES");
+        kg.init(128);
+        SecretKey key = kg.generateKey();
+
+        byte[] iv = new byte[16];
+        new SecureRandom().nextBytes(iv);
+        IvParameterSpec ivSpec = new IvParameterSpec(iv);
+
+        Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, key, ivSpec);
+        byte[] encrypted = cipher.doFinal(plaintext.getBytes());
+        System.out.println("Encrypted (Base64): " + Base64.getEncoder().encodeToString(encrypted));
+
+        cipher.init(Cipher.DECRYPT_MODE, key, ivSpec);
+        byte[] decrypted = cipher.doFinal(encrypted);
+        System.out.println("Decrypted: " + new String(decrypted));
+    }
+}
