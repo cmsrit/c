@@ -1,0 +1,83 @@
+import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class EncryptionExample {
+
+    public static void main(String[] args) throws Exception {
+        Scanner sc = new Scanner(System.in);
+
+        // AES Encryption & Decryption
+        System.out.print("Enter plain text for AES: ");
+        String plainText = sc.nextLine();
+        SecretKey aesKey = generateAESKey();
+        
+        String aesEncryptedText = encryptAES(plainText, aesKey);
+        String aesDecryptedText = decryptAES(aesEncryptedText, aesKey);
+
+        System.out.println("AES Encrypted: " + aesEncryptedText);
+        System.out.println("AES Decrypted: " + aesDecryptedText);
+
+        // RSA Encryption & Decryption
+        System.out.print("\nEnter plain text for RSA: ");
+        String rsaPlainText = sc.nextLine();
+        KeyPair rsaKeyPair = generateRSAKeyPair();
+        
+        String rsaEncryptedText = encryptRSA(rsaPlainText, rsaKeyPair.getPublic());
+        String rsaDecryptedText = decryptRSA(rsaEncryptedText, rsaKeyPair.getPrivate());
+
+        System.out.println("RSA Encrypted: " + rsaEncryptedText);
+        System.out.println("RSA Decrypted: " + rsaDecryptedText);
+    }
+
+    // AES Methods
+    public static SecretKey generateAESKey() throws Exception {
+        KeyGenerator keyGen = KeyGenerator.getInstance("AES");
+        keyGen.init(128); // AES key size can be 128, 192, or 256
+        return keyGen.generateKey();
+    }
+
+    public static String encryptAES(String data, SecretKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, key);
+        byte[] encryptedData = cipher.doFinal(data.getBytes());
+        return Base64.getEncoder().encodeToString(encryptedData);
+    }
+
+    public static String decryptAES(String data, SecretKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, key);
+        byte[] decodedData = Base64.getDecoder().decode(data);
+        byte[] decryptedData = cipher.doFinal(decodedData);
+        return new String(decryptedData);
+    }
+
+    // RSA Methods
+    public static KeyPair generateRSAKeyPair() throws Exception {
+        KeyPairGenerator keyPairGen = KeyPairGenerator.getInstance("RSA");
+        keyPairGen.initialize(2048); // RSA key size (2048 bits or higher is recommended)
+        return keyPairGen.generateKeyPair();
+    }
+
+    public static String encryptRSA(String data, PublicKey publicKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        byte[] encryptedData = cipher.doFinal(data.getBytes());
+        return Base64.getEncoder().encodeToString(encryptedData);
+    }
+
+    public static String decryptRSA(String data, PrivateKey privateKey) throws Exception {
+        Cipher cipher = Cipher.getInstance("RSA");
+        cipher.init(Cipher.DECRYPT_MODE, privateKey);
+        byte[] decodedData = Base64.getDecoder().decode(data);
+        byte[] decryptedData = cipher.doFinal(decodedData);
+        return new String(decryptedData);
+    }
+}
