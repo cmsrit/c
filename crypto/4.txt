@@ -1,78 +1,38 @@
 import javax.crypto.Cipher;
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.GCMParameterSpec;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import javax.crypto.spec.SecretKeySpec;
 import java.util.Base64;
+import java.util.Scanner;
 
-public class AES {
-    private static final String ENCRYPTION_ALGORITHM = "AES/GCM/NoPadding";
-    private static final int AES_KEY_SIZE = 256;
-    private static final int GCM_IV_LENGTH = 12;
-    private static final int GCM_TAG_LENGTH = 16;
-
-    public static SecretKey generateKey() throws NoSuchAlgorithmException {
-        KeyGenerator keyGenerator = KeyGenerator.getInstance("AES");
-        keyGenerator.init(AES_KEY_SIZE);
-        return keyGenerator.generateKey();
-    }
-
-    public static byte[] generateIv() {
-        byte[] iv = new byte[GCM_IV_LENGTH];
-        new SecureRandom().nextBytes(iv);
-        return iv;
-    }
-
-    public static byte[] encrypt(String plainText, SecretKey key) throws Exception {
-        byte[] iv = generateIv();
-        Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
-        GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv);
-        cipher.init(Cipher.ENCRYPT_MODE, key, gcmParameterSpec);
-        byte[] cipherText = cipher.doFinal(plainText.getBytes(StandardCharsets.UTF_8));
-        ByteBuffer byteBuffer = ByteBuffer.allocate(iv.length + cipherText.length);
-        byteBuffer.put(iv);
-        byteBuffer.put(cipherText);
-        return byteBuffer.array();
-    }
-
-    public static String decrypt(byte[] encryptedData, SecretKey key) throws Exception {
-        ByteBuffer byteBuffer = ByteBuffer.wrap(encryptedData);
-        byte[] iv = new byte[GCM_IV_LENGTH];
-        byteBuffer.get(iv);
-        byte[] cipherText = new byte[byteBuffer.remaining()];
-        byteBuffer.get(cipherText);
-        Cipher cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
-        GCMParameterSpec gcmParameterSpec = new GCMParameterSpec(GCM_TAG_LENGTH * 8, iv);
-        cipher.init(Cipher.DECRYPT_MODE, key, gcmParameterSpec);
-        byte[] decryptedText = cipher.doFinal(cipherText);
-        return new String(decryptedText, StandardCharsets.UTF_8);
-    }
+public class AESUserInput {
 
     public static void main(String[] args) {
-        try {
-            SecretKey key = generateKey();
-            String base64Key = Base64.getEncoder().encodeToString(key.getEncoded());
-            System.out.println("Generated AES Key (Base64): " + base64Key);
-            String originalText = "Hola hola";
-            System.out.println("Original Text: " + originalText);
+        try (Scanner scanner = new Scanner(System.in)) {
+            System.out.print("Enter 16-character AES key: ");
+            String keyInput = scanner.nextLine();
 
-            byte[] encryptedData = encrypt(originalText, key);
-            String base64EncryptedData = Base64.getEncoder().encodeToString(encryptedData);
-            System.out.println("Encrypted Data (Base64): " + base64EncryptedData);
-
-            String decryptedText = decrypt(encryptedData, key);
-            System.out.println("Decrypted Text: " + decryptedText);
-
-            if (originalText.equals(decryptedText)) {
-                System.out.println("SUCCESS: The decrypted text matches the original text.");
-            } else {
-                System.out.println("FAILURE: The decrypted text does NOT match the original text.");
+            if (keyInput.length() != 16) {
+                System.out.println("Key must be exactly 16 characters!");
+                return;
             }
+
+            SecretKeySpec secretKey = new SecretKeySpec(keyInput.getBytes(), "AES");
+
+            System.out.print("Enter message to encrypt: ");
+            String message = scanner.nextLine();
+
+            Cipher encryptCipher = Cipher.getInstance("AES");
+            encryptCipher.init(Cipher.ENCRYPT_MODE, secretKey);
+            byte[] encryptedBytes = encryptCipher.doFinal(message.getBytes());
+            String encryptedBase64 = Base64.getEncoder().encodeToString(encryptedBytes);
+            System.out.println("Encrypted Message: " + encryptedBase64);
+
+            Cipher decryptCipher = Cipher.getInstance("AES");
+            decryptCipher.init(Cipher.DECRYPT_MODE, secretKey);
+            byte[] decryptedBytes = decryptCipher.doFinal(Base64.getDecoder().decode(encryptedBase64));
+            String decryptedMessage = new String(decryptedBytes);
+            System.out.println("Decrypted Message: " + decryptedMessage);
+
         } catch (Exception e) {
-            System.err.println("An error occurred during encryption or decryption.");
             e.printStackTrace();
         }
     }
