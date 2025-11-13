@@ -1,0 +1,78 @@
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.DESKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.Scanner;
+
+public class DESDemo {
+
+    private static SecretKey keyFromPassword(String password) throws Exception {
+        byte[] raw = new byte[8];
+        byte[] src = password.getBytes("UTF-8");
+        for (int i = 0; i < raw.length; i++) {
+            raw[i] = i < src.length ? src[i] : 0; // pad with 0 if shorter
+        }
+        DESKeySpec spec = new DESKeySpec(raw);
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("DES");
+        return factory.generateSecret(spec);
+    }
+
+    private static String[] encrypt(String plaintext, SecretKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
+
+        byte[] ivBytes = new byte[8];
+        new SecureRandom().nextBytes(ivBytes);
+        IvParameterSpec iv = new IvParameterSpec(ivBytes);
+
+        cipher.init(Cipher.ENCRYPT_MODE, key, iv);
+
+        byte[] ciphertext = cipher.doFinal(plaintext.getBytes("UTF-8"));
+        String b64Cipher = Base64.getEncoder().encodeToString(ciphertext);
+        String b64Iv = Base64.getEncoder().encodeToString(ivBytes);
+        return new String[]{b64Cipher, b64Iv};
+    }
+
+    private static String decrypt(String b64Cipher, String b64Iv, SecretKey key) throws Exception {
+        Cipher cipher = Cipher.getInstance("DES/CBC/PKCS5Padding");
+        byte[] ivBytes = Base64.getDecoder().decode(b64Iv);
+        IvParameterSpec iv = new IvParameterSpec(ivBytes);
+
+        cipher.init(Cipher.DECRYPT_MODE, key, iv);
+
+        byte[] ciphertext = Base64.getDecoder().decode(b64Cipher);
+        byte[] plain = cipher.doFinal(ciphertext);
+        return new String(plain, "UTF-8");
+    }
+
+    public static void main(String[] args) {
+        try (Scanner sc = new Scanner(System.in)) {
+            System.out.print("Enter plaintext: ");
+            String plaintext = sc.nextLine();
+
+            System.out.print("Enter password (min 8 chars, only first 8 are used for DES): ");
+            String password = sc.nextLine();
+
+            SecretKey key = keyFromPassword(password);
+
+            String[] enc = encrypt(plaintext, key);
+            String b64Cipher = enc[0];
+            String b64Iv = enc[1];
+
+            System.out.println("\n--- ENCRYPTION OUTPUTS ---");
+            System.out.println("Ciphertext (Base64): " + b64Cipher);
+            System.out.println("IV (Base64): " + b64Iv);
+
+            String recovered = decrypt(b64Cipher, b64Iv, key);
+
+            System.out.println("\n--- DECRYPTION OUTPUT ---");
+            System.out.println("Recovered Plaintext: " + recovered);
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
