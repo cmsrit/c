@@ -1,0 +1,96 @@
+//server
+
+import java.io.*;
+import java.net.*;
+import java.io.File;
+
+public class PeerServer {
+    public static void main(String[] args) throws Exception {
+
+        ServerSocket ss = new ServerSocket(6000);
+        System.out.println("Peer Server Running on Port 6000...");
+
+        while (true) {
+            Socket s = ss.accept();
+
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(s.getInputStream()));
+            PrintWriter out = new PrintWriter(
+                    s.getOutputStream(), true);
+
+            // Read command separately
+            String command = br.readLine();   // ADD or LIST
+
+            if (command.equals("ADD")) {
+                int a = Integer.parseInt(br.readLine());
+                int b = Integer.parseInt(br.readLine());
+
+                out.println("SUM = " + (a + b));
+            }
+            else if (command.equals("LIST")) {
+
+                File folder = new File(".");
+                File[] files = folder.listFiles();
+
+                out.println("FILES:");
+                for (File f : files)
+                    out.println(f.getName());
+                out.println("END");
+            }
+            else {
+                out.println("INVALID COMMAND");
+            }
+
+            s.close();
+        }
+    }
+}
+
+
+//client
+
+import java.io.*;
+import java.net.*;
+import java.util.*;
+
+public class PeerClient {
+    public static void main(String[] args) throws Exception {
+
+        Scanner sc = new Scanner(System.in);
+
+        Socket s = new Socket("localhost", 6000);
+
+        PrintWriter out = new PrintWriter(
+                s.getOutputStream(), true);
+        BufferedReader br = new BufferedReader(
+                new InputStreamReader(s.getInputStream()));
+
+        System.out.println("1. Add two numbers");
+        System.out.println("2. List peer files");
+        System.out.print("Choice: ");
+        int choice = sc.nextInt();
+
+        if (choice == 1) {
+            System.out.print("Enter first number: ");
+            int a = sc.nextInt();
+
+            System.out.print("Enter second number: ");
+            int b = sc.nextInt();
+
+            out.println("ADD");
+            out.println(a);
+            out.println(b);
+
+            System.out.println(br.readLine());
+        }
+        else if (choice == 2) {
+            out.println("LIST");
+
+            String line;
+            while (!(line = br.readLine()).equals("END"))
+                System.out.println(line);
+        }
+
+        s.close();
+    }
+}
