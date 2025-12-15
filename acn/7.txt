@@ -1,0 +1,78 @@
+//server
+
+import java.io.*;
+import java.net.*;
+
+public class SimpleRPCServer {
+    public static void main(String[] args) throws Exception {
+
+        ServerSocket ss = new ServerSocket(5000);
+        System.out.println("Server started...");
+
+        Socket s = ss.accept();
+
+        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+
+        String msg = br.readLine();          // e.g. 10 5 +
+        String[] data = msg.split(" ");
+
+        int a = Integer.parseInt(data[0]);
+        int b = Integer.parseInt(data[1]);
+        char op = data[2].charAt(0);
+
+        int result = 0;
+
+        switch (op) {
+            case '+': result = a + b; break;
+            case '-': result = a - b; break;
+            case '*': result = a * b; break;
+            case '/': result = a / b; break;
+            default:
+                pw.println("Invalid Operation");
+                return;
+        }
+
+        pw.println("Result = " + result);
+
+        s.close();
+        ss.close();
+    }
+}
+
+
+
+
+//client
+
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
+
+public class SimpleRPCClient {
+    public static void main(String[] args) throws Exception {
+
+        Socket s = new Socket("localhost", 5000);
+
+        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        Scanner sc = new Scanner(System.in);
+
+        System.out.print("Enter number1: ");
+        int a = sc.nextInt();
+
+        System.out.print("Enter number2: ");
+        int b = sc.nextInt();
+
+        System.out.print("Enter operation (+ - * /): ");
+        char op = sc.next().charAt(0);
+
+        // RPC call
+        pw.println(a + " " + b + " " + op);
+
+        // RPC reply
+        System.out.println(br.readLine());
+
+        s.close();
+    }
+}
