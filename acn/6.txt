@@ -1,0 +1,59 @@
+import java.util.Scanner;
+
+public class LeakyBucket {
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        int bucketCapacity = 4;
+        int outputRate = 3;
+        int bucketRemaining = 0;
+
+        System.out.print("Enter number of packets: ");
+        int n = sc.nextInt();
+
+        int[] packets = new int[n + 1];
+
+        System.out.println("Enter packet sizes:");
+        for (int i = 1; i <= n; i++) {
+            packets[i] = sc.nextInt();
+        }
+
+        System.out.println("\nClock\tPacket\tAccepted\tSent\tRemaining");
+
+        for (int i = 1; i <= n; i++) {
+
+            int accepted;
+            int sent;
+
+            // Packet acceptance
+            if (packets[i] + bucketRemaining > bucketCapacity) {
+                accepted = -1; // dropped
+            } else {
+                accepted = packets[i];
+                bucketRemaining += packets[i];
+            }
+
+            // Packet sending
+            if (bucketRemaining > 0) {
+                if (bucketRemaining < outputRate) {
+                    sent = bucketRemaining;
+                    bucketRemaining = 0;
+                } else {
+                    sent = outputRate;
+                    bucketRemaining -= outputRate;
+                }
+            } else {
+                sent = 0;
+            }
+
+            // Output
+            if (accepted == -1) {
+                System.out.println(i + "\t" + packets[i] + "\tDropped\t\t" + sent + "\t" + bucketRemaining);
+            } else {
+                System.out.println(i + "\t" + packets[i] + "\t" + accepted + "\t\t" + sent + "\t" + bucketRemaining);
+            }
+        }
+        sc.close();
+    }
+}
