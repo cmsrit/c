@@ -1,70 +1,26 @@
-import java.io.DataInputStream; 
-import java.io.IOException; 
-import java.math.BigInteger; 
-import java.util.Random; 
+import java.security.*;
+import javax.crypto.Cipher;
+import java.util.*;
+import java.util.Base64;
 
-public class RSA { 
-    private BigInteger p, q, N, phi, e, d; 
-    private int bitlength = 1024; 
-    private Random r; 
+public class RSA {
+    public static void main(String[] args) throws Exception {
 
-    public RSA() { 
-        r = new Random(); 
-        p = BigInteger.probablePrime(bitlength, r); 
-        q = BigInteger.probablePrime(bitlength, r); 
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter message: ");
+        String msg = sc.nextLine();
 
-        System.out.println("Prime number p is: " + p); 
-        System.out.println("Prime number q is: " + q); 
+        KeyPair kp = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        Cipher c = Cipher.getInstance("RSA");
 
-        N = p.multiply(q); 
-        phi = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE)); 
-        e = BigInteger.probablePrime(bitlength / 2, r); 
+        c.init(Cipher.ENCRYPT_MODE, kp.getPublic());
+        byte[] enc = c.doFinal(msg.getBytes());
+        String encrypted = Base64.getEncoder().encodeToString(enc);
 
-        while (phi.gcd(e).compareTo(BigInteger.ONE) > 0 && e.compareTo(p) < 0) { 
-            e = e.add(BigInteger.ONE); 
-        } 
+        c.init(Cipher.DECRYPT_MODE, kp.getPrivate());
+        byte[] dec = c.doFinal(Base64.getDecoder().decode(encrypted));
 
-        System.out.println("Public key is: " + e); 
-        d = e.modInverse(phi); 
-        System.out.println("Private key is: " + d); 
-    } 
-
-    public RSA(BigInteger e, BigInteger d, BigInteger N) { 
-        this.e = e;
-        this.d = d; 
-        this.N = N; 
-    } 
-
-    public static void main(String[] args) throws IOException { 
-        RSA rsa = new RSA(); 
-        DataInputStream in = new DataInputStream(System.in); 
-        String testString; 
-
-        System.out.println("Enter the plain text:"); 
-        testString = in.readLine(); 
-        System.out.println("Encrypting string: " + testString); 
-        System.out.println("String in bytes: " + bytesToString(testString.getBytes())); 
-
-        byte[] encrypted = rsa.encrypt(testString.getBytes()); 
-        byte[] decrypted = rsa.decrypt(encrypted); 
-
-        System.out.println("Decrypting Bytes: " + bytesToString(decrypted)); 
-        System.out.println("Decrypted string: " + new String(decrypted)); 
-    } 
-
-    private static String bytesToString(byte[] encrypted) { 
-        StringBuilder test = new StringBuilder(); 
-        for (byte b : encrypted) { 
-            test.append(Byte.toString(b)).append(" "); 
-        } 
-        return test.toString(); 
-    } 
-
-    public byte[] encrypt(byte[] message) { 
-        return (new BigInteger(message)).modPow(e, N).toByteArray(); 
-    } 
-
-    public byte[] decrypt(byte[] message) { 
-        return (new BigInteger(message)).modPow(d, N).toByteArray(); 
+        System.out.println("Encrypted: " + encrypted);
+        System.out.println("Decrypted: " + new String(dec));
     }
 }
