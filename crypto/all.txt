@@ -1,0 +1,197 @@
+================================================================================
+LAB MANUAL: NETWORK SECURITY & PACKET ANALYSIS
+================================================================================
+
+PREREQUISITES FOR ALL LABS:
+1. Two VMs: 
+   - Kali Linux (Attacker/Client)
+   - Ubuntu or Metasploitable2 (Target/Server)
+2. Network Adapter: Set both VMs to "Host-only Adapter" or "Nat Network" so they can ping each other.
+3. Check IPs: Run `ifconfig` on both machines to know their IPs.
+
+--------------------------------------------------------------------------------
+PROGRAM 1: Capture and Analyze FTP Login (Plaintext Credentials)
+--------------------------------------------------------------------------------
+GOAL: Show that FTP sends passwords in clear text.
+
+[ STEP 1: Setup FTP Server (Ubuntu VM) ]
+1. Install vsftpd:
+   sudo apt-get update
+   sudo apt-get install vsftpd -y
+
+2. Start and Enable the service:
+   sudo systemctl start vsftpd
+   sudo systemctl enable vsftpd
+
+3. **CRITICAL MISSING STEP**: Allow FTP port through firewall:
+   sudo ufw allow 21/tcp
+   sudo ufw reload
+
+4. Create a test user (remember the password, e.g., '12345'):
+   sudo adduser ftpuser
+
+[ STEP 2: Prepare Sniffing (Kali VM) ]
+1. Open Wireshark.
+2. Select your interface (usually eth0) and click the Blue Shark fin to start capturing.
+
+[ STEP 3: Connect to FTP (Kali VM) ]
+1. Open a terminal.
+2. Connect to the Ubuntu IP:
+   ftp <UBUNTU_IP>
+3. Enter Username: ftpuser
+4. Enter Password: 12345
+5. Run a command (optional): ls
+6. Exit: bye
+
+[ STEP 4: Analyze in Wireshark ]
+1. Stop the capture (Red Square button).
+2. In the filter bar, type: ftp
+3. Look for the packet that says "Request: USER ftpuser".
+4. Look for the packet that says "Request: PASS 12345".
+   >> RESULT: You will see the password "12345" clearly visible in the "File Transfer Protocol" section of the packet details.
+
+--------------------------------------------------------------------------------
+PROGRAM 2: Packet Crafting with Scapy & Firewall Analysis
+--------------------------------------------------------------------------------
+GOAL: Use Python (Scapy) to send custom packets and see how a Firewall blocks/allows them.
+
+[ STEP 1: Configure Firewall (Ubuntu VM) ]
+1. Enable UFW:
+   sudo ufw enable
+2. Set Rules (Block HTTP, Allow SSH):
+   sudo ufw deny 80/tcp
+   sudo ufw allow 22/tcp
+3. (Optional) Block ICMP/Ping:
+   sudo iptables -I INPUT 1 -p icmp --icmp-type echo-request -j DROP
+
+[ STEP 2: Simplified Scapy Script (Kali VM) ]
+Save this as `packet_lab.py`. Note: Replace TARGET_IP with your Ubuntu IP.
+
+# --- START PYTHON SCRIPT ---
+from scapy.all import *
+import time
+
+TARGET_IP = "192.168.XX.XX"  # <--- CHANGE THIS TO UBUNTU IP
+
+def send_pkt(name, pkt):
+    print(f"[*] Sending {name}...")
+    send(pkt, verbose=0)
+
+# 1. Send ICMP (Ping)
+send_pkt("ICMP Ping", IP(dst=TARGET_IP)/ICMP())
+
+# 2. Send TCP SYN to Port 80 (Blocked Port)
+send_pkt("TCP SYN to 80", IP(dst=TARGET_IP)/TCP(dport=80, flags="S"))
+
+# 3. Send TCP SYN to Port 22 (Allowed Port)
+send_pkt("TCP SYN to 22", IP(dst=TARGET_IP)/TCP(dport=22, flags="S"))
+
+# 4. Send TCP FIN (Connection Teardown)
+send_pkt("TCP FIN", IP(dst=TARGET_IP)/TCP(dport=22, flags="F"))
+
+print("\n[+] Done.")
+# --- END PYTHON SCRIPT ---
+
+[ STEP 3: Execution & Analysis ]
+1. Start Wireshark on Kali (Filter: `ip.addr == <UBUNTU_IP>`).
+2. Run the script: 
+   sudo python3 packet_lab.py
+3. Analyze Wireshark:
+   - Port 80 (Blocked): You see a SYN packet sent, but NO response (or an ICMP Admin Prohibited error).
+   - Port 22 (Allowed): You see a SYN packet sent, and a SYN/ACK response from Ubuntu.
+
+--------------------------------------------------------------------------------
+PROGRAM 3: SSH Session Analysis (Encrypted Traffic)
+--------------------------------------------------------------------------------
+GOAL: Capture SSH traffic to prove it is encrypted (unlike FTP).
+
+[ STEP 1: Setup SSH (Metasploitable/Ubuntu VM) ]
+1. Ensure SSH is running:
+   sudo service ssh start
+2. Check IP address.
+
+[ STEP 2: Start Wireshark (Kali VM) ]
+1. Start capturing on eth0.
+
+[ STEP 3: Connect via SSH (Kali VM) ]
+ssh -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa msfadmin@<SERVER_IP>
+
+(Enter password when prompted, usually 'msfadmin')
+
+1. Once connected, type commands: `ls`, `pwd`, `whoami`.
+2. Exit: `exit`.
+
+[ STEP 4: Analyze in Wireshark ]
+1. Stop capture.
+2. Filter: `tcp.port == 22`
+3. Observe the flow:
+   - Handshake: SYN, SYN/ACK, ACK.
+   - Negotiation: "Key Exchange Init", "Diffie-Hellman Key Exchange".
+   - Data: "Encrypted Packet".
+   >> RESULT: Unlike FTP, you cannot read the username, password, or the commands (`ls`, `pwd`) inside the "Encrypted Packet" payload.
+
+--------------------------------------------------------------------------------
+PROGRAM 4: TCP Communication with Netcat (3-Way Handshake)
+--------------------------------------------------------------------------------
+GOAL: Manually create a chat connection and see the TCP handshake.
+
+[ STEP 1: Setup Server (Ubuntu VM) ]
+1. Allow port 5000:
+   sudo ufw allow 5000/tcp
+2. Start Netcat listener:
+   nc -lvp 5000
+
+[ STEP 2: Start Client (Kali VM) ]
+1. Start Wireshark (Filter: `tcp.port == 5000`).
+2. Connect to Ubuntu:
+   nc <UBUNTU_IP> 5000
+3. Type a message in Kali ("Hello") -> Press Enter.
+4. Type a message in Ubuntu ("Hi") -> Press Enter.
+5. Close connection (Ctrl+C).
+
+[ STEP 3: Analyze Handshake ]
+Look for these specific packets in order:
+1. SYN (Client -> Server)
+2. SYN/ACK (Server -> Client)
+3. ACK (Client -> Server)
+4. [PSH, ACK] (Data transfer: "Hello")
+5. FIN, ACK (Termination)
+
+--------------------------------------------------------------------------------
+PROGRAM 5: UDP Broadcast
+--------------------------------------------------------------------------------
+GOAL: Send a message to everyone on the network (Broadcast).
+
+[ STEP 1: Setup Firewall (Ubuntu VM - Receiver) ]
+1. Allow UDP port 4000:
+   sudo ufw allow 4000/udp
+
+[ STEP 2: Simplified Receiver Script (Ubuntu VM) ]
+Save as `listener.py`:
+
+import socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.bind(("", 4000))
+print("Listening...")
+while True:
+    data, addr = sock.recvfrom(1024)
+    print(f"Received {data.decode()} from {addr}")
+
+[ STEP 3: Simplified Sender Script (Kali VM - Sender) ]
+Save as `sender.py`:
+
+import socket, time
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+
+for i in range(5):
+    msg = f"Broadcast_Message_{i}"
+    sock.sendto(msg.encode(), ("255.255.255.255", 4000))
+    print(f"Sent: {msg}")
+    time.sleep(1)
+
+[ STEP 4: Execution ]
+1. Start `python3 listener.py` on Ubuntu.
+2. Start Wireshark on Kali (Filter: `udp.port == 4000`).
+3. Start `python3 sender.py` on Kali.
+4. Analyze: You will see packets sent to IP `255.255.255.255` (The Broadcast Address).
