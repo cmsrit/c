@@ -1,0 +1,416 @@
+Part A1. Basic Algorithms (Roots, Matrix Multiplication, Sort)Requirement: Calculate quadratic roots 1, multiply arrays 2, and bubble sort3.Explanation: This program combines the three sub-questions.Quadratic: Uses the discriminant formula $D = b^2 - 4ac$.Matrix Multiplication: Uses nested loops to calculate row-column products.Bubble Sort: Swaps adjacent elements to sort.Javaimport java.util.Scanner;
+import java.util.Arrays;
+
+public class Lab1 {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        // 1a. Quadratic Roots
+        System.out.println("Enter a, b, c for ax^2 + bx + c:");
+        double a = sc.nextDouble(), b = sc.nextDouble(), c = sc.nextDouble();
+        double d = b * b - 4 * a * c;
+        if (d > 0) System.out.println("Roots: " + (-b + Math.sqrt(d))/(2*a) + ", " + (-b - Math.sqrt(d))/(2*a));
+        else if (d == 0) System.out.println("Root: " + (-b / (2 * a)));
+        else System.out.println("Roots are imaginary.");
+
+        // 1b. Matrix Multiplication (2x2 example for brevity)
+        int[][] m1 = {{1, 2}, {3, 4}}, m2 = {{1, 0}, {0, 1}}, res = new int[2][2];
+        System.out.println("Matrix Multiplication Result:");
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 2; j++) {
+                for (int k = 0; k < 2; k++) res[i][j] += m1[i][k] * m2[k][j];
+                System.out.print(res[i][j] + " ");
+            }
+            System.out.println();
+        }
+
+        // 1c. Bubble Sort
+        int[] arr = {5, 1, 4, 2, 8};
+        for (int i = 0; i < arr.length - 1; i++)
+            for (int j = 0; j < arr.length - i - 1; j++)
+                if (arr[j] > arr[j + 1]) { // Change > to < for descending
+                    int temp = arr[j]; arr[j] = arr[j+1]; arr[j+1] = temp;
+                }
+        System.out.println("Sorted: " + Arrays.toString(arr));
+    }
+}
+2. Employee DatabaseRequirement: Employee class, calculate sum of salary for "sales", find highest paid manager in "purchase"4444.Explanation: An array of objects is used to store employee data. We loop through this array to filter by department and designation.Javaimport java.util.Scanner;
+
+class Employee {
+    String id, name, dept, desig;
+    double salary;
+    Employee(String i, String n, String d, String de, double s) {
+        id=i; name=n; dept=d; desig=de; salary=s;
+    }
+}
+
+public class Lab2 {
+    public static void main(String[] args) {
+        Employee[] emps = {
+            new Employee("1", "Alice", "sales", "manager", 50000),
+            new Employee("2", "Bob", "sales", "clerk", 20000),
+            new Employee("3", "Charlie", "purchase", "manager", 70000),
+            new Employee("4", "David", "purchase", "manager", 80000)
+        };
+        
+        double salesSum = 0;
+        Employee highMgr = null;
+        
+        for (Employee e : emps) {
+            // Sum of sales dept salary
+            if (e.dept.equalsIgnoreCase("sales")) salesSum += e.salary;
+            
+            // Highest paid manager in purchase
+            if (e.dept.equalsIgnoreCase("purchase") && e.desig.equalsIgnoreCase("manager")) {
+                if (highMgr == null || e.salary > highMgr.salary) highMgr = e;
+            }
+        }
+        
+        System.out.println("Total Sales Salary: " + salesSum);
+        if(highMgr != null) System.out.println("Highest Paid Purchase Mgr: " + highMgr.name);
+    }
+}
+3. Complex NumbersRequirement: Encapsulation, constructors, Add, Sub, Compare5.Explanation: A class Complex holds real and imaginary parts. Methods return new Complex objects for arithmetic operations.Javaclass Complex {
+    private double real, img;
+    public Complex(double r, double i) { real = r; img = i; }
+    
+    public Complex add(Complex c) { return new Complex(real + c.real, img + c.img); }
+    public Complex sub(Complex c) { return new Complex(real - c.real, img - c.img); }
+    public void display() { System.out.println(real + " + i" + img); }
+    
+    public boolean isEqual(Complex c) { return real == c.real && img == c.img; }
+
+    public static void main(String[] args) {
+        Complex c1 = new Complex(4, 5);
+        Complex c2 = new Complex(2, 3);
+        c1.add(c2).display(); // 6.0 + i8.0
+        c1.sub(c2).display(); // 2.0 + i2.0
+    }
+}
+4. Inheritance (Person, Student, Employee)Requirement: Base Person, derived Student and Employee6.Explanation: super() is used to call the base class constructor. Each derived class adds its specific fields (e.g., marks for Student, salary for Employee).Javaclass Person {
+    String name; int age;
+    Person(String n, int a) { name = n; age = a; }
+}
+
+class Student extends Person {
+    String usn;
+    Student(String n, int a, String u) { super(n, a); usn = u; }
+    void display() { System.out.println("Student: " + name + ", USN: " + usn); }
+}
+
+class Emp extends Person {
+    double salary;
+    Emp(String n, int a, double s) { super(n, a); salary = s; }
+    void display() { System.out.println("Employee: " + name + ", Salary: " + salary); }
+}
+
+public class Lab4 {
+    public static void main(String[] args) {
+        Student s = new Student("John", 20, "1BM19CS");
+        Emp e = new Emp("Dr. Smith", 45, 90000);
+        s.display();
+        e.display();
+    }
+}
+5. Polymorphism (String Compare)Requirement: Overload usrstrcmp: one compares full strings, one compares n chars7.Explanation: Method overloading allows two methods with the same name but different parameters.Javapublic class Lab5 {
+    // Version 1: Compare full strings
+    static int usrstrcmp(String s1, String s2) {
+        return s1.compareTo(s2);
+    }
+    
+    // Version 2: Compare first n characters
+    static int usrstrcmp(String s1, String s2, int n) {
+        return s1.substring(0, n).compareTo(s2.substring(0, n));
+    }
+
+    public static void main(String[] args) {
+        String s1 = "Apple", s2 = "Application";
+        System.out.println("Full compare: " + usrstrcmp(s1, s2)); // Non-zero (Not equal)
+        System.out.println("First 3 chars: " + usrstrcmp(s1, s2, 3)); // 0 (Equal "App")
+    }
+}
+6. Abstract Class (Bank)Requirement: Abstract Bank with calculateInterest(). Derived City, SBI, Canara8.Explanation: The abstract method forces all subclasses to implement their own interest logic.Javaabstract class Bank {
+    abstract void calculateInterest(double balance);
+}
+
+class SBI extends Bank {
+    void calculateInterest(double bal) { System.out.println("SBI Interest (5%): " + (bal * 0.05)); }
+}
+
+class Canara extends Bank {
+    void calculateInterest(double bal) { System.out.println("Canara Interest (6%): " + (bal * 0.06)); }
+}
+
+public class Lab6 {
+    public static void main(String[] args) {
+        Bank b = new SBI();
+        b.calculateInterest(1000);
+    }
+}
+Part B7. Producer-ConsumerRequirement: Multi-threaded program illustrating producer-consumer9.Explanation: Uses wait() and notify() to synchronize threads. The producer waits if the buffer is full, and the consumer waits if it is empty.Javaclass Buffer {
+    int data;
+    boolean available = false;
+    
+    synchronized void produce(int val) {
+        if (available) try { wait(); } catch (Exception e) {}
+        data = val; available = true;
+        System.out.println("Produced: " + val);
+        notify();
+    }
+    
+    synchronized void consume() {
+        if (!available) try { wait(); } catch (Exception e) {}
+        System.out.println("Consumed: " + data);
+        available = false;
+        notify();
+    }
+}
+
+public class Lab7 {
+    public static void main(String[] args) {
+        Buffer b = new Buffer();
+        new Thread(() -> { for(int i=0; i<5; i++) b.produce(i); }).start();
+        new Thread(() -> { for(int i=0; i<5; i++) b.consume(); }).start();
+    }
+}
+8. Exception HandlingRequirement: Division of positive integers. Handle negative input and divide by zero10.Explanation: We explicitly check for negative numbers to throw an exception and catch ArithmeticException for zero division.Javaimport java.util.Scanner;
+
+public class Lab8 {
+    public static void main(String[] args) {
+        try {
+            Scanner sc = new Scanner(System.in);
+            System.out.print("Enter numerator and denominator: ");
+            int a = sc.nextInt();
+            int b = sc.nextInt();
+            
+            if (a < 0 || b < 0) throw new IllegalArgumentException("Negative input not allowed");
+            
+            System.out.println("Result: " + (a / b));
+        } catch (ArithmeticException e) {
+            System.out.println("Exception: Cannot divide by zero.");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Exception: " + e.getMessage());
+        }
+    }
+}
+9. Interface (Compute)Requirement: Interface compute with convert. Classes for GBtoBytes and EuroToRupees11.Explanation: An interface defines a contract. Both classes implement convert differently.Javainterface Compute {
+    double convert(double val);
+}
+
+class GBtoBytes implements Compute {
+    public double convert(double gb) { return gb * 1024 * 1024 * 1024; }
+}
+
+class EuroToRupees implements Compute {
+    public double convert(double euro) { return euro * 90; } // Assuming 1 Euro = 90 INR
+}
+
+public class Lab9 {
+    public static void main(String[] args) {
+        Compute c1 = new GBtoBytes();
+        System.out.println("1GB in Bytes: " + c1.convert(1));
+        Compute c2 = new EuroToRupees();
+        System.out.println("100 Euro in Rupees: " + c2.convert(100));
+    }
+}
+
+10. JDBC CRUD Operations
+
+Requirement: Connect to MySQL and perform Create, Read, Update, Delete operations.
+
+Code (JDBCCrud.java):
+
+Java
+
+import java.sql.*;
+import java.util.Scanner;
+
+public class JDBCCrud {
+    // Update these credentials as per your local setup
+    static final String URL = "jdbc:mysql://localhost:3306/demo";
+    static final String USER = "root"; 
+    static final String PASS = "password"; 
+
+    public static void main(String[] args) {
+        try (Connection conn = DriverManager.getConnection(URL, USER, PASS);
+             Scanner sc = new Scanner(System.in)) {
+            while (true) {
+                System.out.println("1.Insert 2.Select 3.Update 4.Delete 5.Exit");
+                int ch = sc.nextInt();
+                if (ch == 5) break;
+                
+                Statement stmt = conn.createStatement();
+                switch (ch) {
+                    case 1: // Insert
+                        System.out.println("Enter ID, Name, Age:");
+                        String sql1 = "INSERT INTO students VALUES ("+sc.nextInt()+", '"+sc.next()+"', "+sc.nextInt()+")";
+                        stmt.executeUpdate(sql1);
+                        break;
+                    case 2: // Select
+                        ResultSet rs = stmt.executeQuery("SELECT * FROM students");
+                        while (rs.next()) System.out.println(rs.getInt(1) + " " + rs.getString(2) + " " + rs.getInt(3));
+                        break;
+                    case 3: // Update
+                        System.out.println("Enter ID to update and new Name:");
+                        stmt.executeUpdate("UPDATE students SET name='" + sc.next() + "' WHERE id=" + sc.nextInt());
+                        break;
+                    case 4: // Delete
+                        System.out.println("Enter ID to delete:");
+                        stmt.executeUpdate("DELETE FROM students WHERE id=" + sc.nextInt());
+                        break;
+                }
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+    }
+}
+Execution Steps:
+
+
+Start Database: Open terminal, run sudo systemctl start mysql.
+
+Setup DB: Log in (sudo mysql) and run:
+
+SQL
+
+CREATE DATABASE demo;
+USE demo;
+CREATE TABLE students (id INT PRIMARY KEY, name VARCHAR(50), age INT);
+``` [cite: 54-60]
+Eclipse Setup:
+
+Create a Java Project (File -> New -> Java Project).
+
+Crucial Step: Right-click Project -> Build Path -> Configure Build Path -> Libraries -> Add External JARs. Select the mysql-connector-j-8.x.x.jar .
+
+Run: Run as Java Application.
+
+11. Servlet (Age Checker)
+Requirement: HTML form takes name/age. Servlet checks if age < 18 (Not Authorized) or >= 18 (Welcome) .
+
+1. index.html (The Form)
+
+HTML
+
+<html>
+<body>
+    <form action="check" method="get">
+        Name: <input type="text" name="name"><br>
+        Age: <input type="text" name="age"><br>
+        <input type="submit" value="Check">
+    </form>
+</body>
+</html>
+2. VoterSrv.java (The Logic)
+
+Java
+
+import java.io.*;
+import javax.servlet.*;
+import javax.servlet.http.*;
+
+public class VoterSrv extends HttpServlet {
+    public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
+        res.setContentType("text/html");
+        PrintWriter out = res.getWriter();
+        
+        String name = req.getParameter("name");
+        int age = Integer.parseInt(req.getParameter("age"));
+        
+        if (age < 18) 
+            out.println("<h2 style='color:red'>Hello " + name + ", you are not authorized to visit the site.</h2>");
+        else 
+            out.println("<h2 style='color:green'>Welcome " + name + " to this site.</h2>");
+            
+        out.println("<a href='index.html'>Back</a>");
+    }
+}
+3. web.xml (The Mapping) Add this inside <web-app> tags in WebContent/WEB-INF/web.xml:
+
+XML
+
+<servlet>
+    <servlet-name>myServlet</servlet-name>
+    <servlet-class>VoterSrv</servlet-class>
+</servlet>
+<servlet-mapping>
+    <servlet-name>myServlet</servlet-name>
+    <url-pattern>/check</url-pattern>
+</servlet-mapping>
+
+
+Execution Steps:
+
+Project Setup: File -> New -> Dynamic Web Project. Name it "CheckAge" .
+
+Files:
+
+Create index.html inside WebContent folder.
+
+Create VoterSrv.java inside src folder (default package).
+
+Edit web.xml in WebContent/WEB-INF/.
+
+
+Run: Right-click the project -> Run As -> Run on Server (Select Tomcat v9.0) .
+
+12. JSP (Session Management)
+
+Requirement: Input Name -> Welcome Page (shows Start Time) -> Logout Page (shows Duration) .
+
+1. index.jsp (Input)
+
+Java
+
+<html>
+<body>
+    <form action="welcome.jsp">
+        Name: <input type="text" name="uname">
+        <input type="submit" value="Login">
+    </form>
+</body>
+</html>
+2. welcome.jsp (Start Session)
+
+Java
+
+<%
+    String name = request.getParameter("uname");
+    session.setAttribute("user", name);
+    session.setAttribute("startTime", System.currentTimeMillis());
+%>
+<html>
+<body>
+    <h2>Hello <%= name %></h2>
+    <p>Start Time: <%= new java.util.Date() %></p>
+    <a href="logout.jsp">Logout</a>
+</body>
+</html>
+
+
+3. logout.jsp (Calculate Duration)
+
+Java
+
+<%
+    String name = (String) session.getAttribute("user");
+    long start = (Long) session.getAttribute("startTime");
+    long end = System.currentTimeMillis();
+    long duration = (end - start) / 1000; // Convert to seconds
+    session.invalidate(); // Destroy session
+%>
+<html>
+<body>
+    <h2>Thank You <%= name %></h2>
+    <p>Usage Duration: <%= duration %> seconds.</p>
+</body>
+</html>
+
+
+Execution Steps:
+
+
+Project Setup: File -> New -> Dynamic Web Project (Name: JSPSessionDemo) .
+
+Files: Right-click WebContent -> New -> JSP File. Create all three files (index.jsp, welcome.jsp, logout.jsp).
+
+
+Run: Right-click index.jsp -> Run As -> Run on Server.
