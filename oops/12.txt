@@ -1,0 +1,29 @@
+// Balance.java
+package MyPack;
+
+public class Balance {
+    String name;
+    double bal;
+
+    public Balance(String n, double b) {
+        name = n;
+        bal = b;
+    }
+
+    public void show() {
+        if (bal > 0) {
+            System.out.println("Name: " + name + "\nBalance: " + bal);
+        }
+    }
+}
+
+
+// TestBalance.java
+import MyPack.Balance;
+
+class TestBalance {
+    public static void main(String args[]) {
+        Balance test = new Balance("abc", 99.8);
+        test.show();
+    }
+}
