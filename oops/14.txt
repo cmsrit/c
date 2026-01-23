@@ -1,0 +1,62 @@
+class Runnable1 implements Runnable {
+    private boolean isPrime(int inputNum) {
+        if (inputNum <= 1)
+            return false;
+        for (int i = 2; i <= inputNum / 2; i++) {
+            if (inputNum % i == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void run() {
+        try {
+            for (int i = 1; i <= 50; i++) {
+                if (isPrime(i)) {
+                    System.out.println("Prime Number from T1: " + i);
+                    Thread.sleep(2000);
+                }
+            }
+        } catch (InterruptedException e) {
+        }
+    }
+}
+
+class Runnable2 implements Runnable {
+    private boolean isPrime(int inputNum) {
+        if (inputNum <= 1)
+            return false;
+        for (int i = 2; i <= inputNum / 2; i++) {
+            if (inputNum % i == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void run() {
+        try {
+            for (int i = 100; i <= 150; i++) {
+                if (isPrime(i)) {
+                    System.out.println("Prime Number from T2: " + i);
+                    Thread.sleep(2000);
+                }
+            }
+        } catch (InterruptedException e) {
+        }
+    }
+}
+
+public class RunnableClassMain {
+    public static void main(String[] args) {
+        Runnable1 rc1 = new Runnable1();
+        Runnable2 rc2 = new Runnable2();
+
+        Thread t1 = new Thread(rc1);
+        Thread t2 = new Thread(rc2);
+
+        t1.start();
+        t2.start();
+    }
+}
