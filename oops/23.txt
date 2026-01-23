@@ -1,0 +1,39 @@
+import java.sql.*;
+
+public class InsertRecord {
+    public static void main(String[] args) {
+
+        String url = "jdbc:mysql://localhost:3306/studentdb";
+        String user = "testuser";
+        String pass = "password";
+
+        try {
+            Connection con = DriverManager.getConnection(url, user, pass);
+            System.out.println("Connection Successful!");
+
+            String insertQuery = "INSERT INTO student VALUES (?, ?, ?)";
+            PreparedStatement pst = con.prepareStatement(insertQuery);
+            pst.setInt(1, 122);
+            pst.setString(2, "Rahul Roy");
+            pst.setInt(3, 85);
+            int rows = pst.executeUpdate();
+            System.out.println("Record Inserted: " + rows);
+
+            String selectQuery = "SELECT * FROM student";
+            Statement st = con.createStatement();
+            ResultSet rs = st.executeQuery(selectQuery);
+            System.out.println("Student Records:");
+            while (rs.next()) {
+                System.out.println(
+                    rs.getInt("RollNo") + " " +
+                    rs.getString("Name") + " " +
+                    rs.getInt("Marks")
+                );
+            }
+
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
