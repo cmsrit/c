@@ -1,0 +1,51 @@
+class ThreadClass1 extends Thread {
+    private boolean isPrime(int inputNum) {
+        if (inputNum <= 1)
+            return false;
+        for (int i = 2; i <= inputNum / 2; i++) {
+            if (inputNum % i == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void run() {
+        try {
+            for (int i = 1; i <= 100; i++) {
+                if (isPrime(i)) {
+                    System.out.println("Prime Number from T1: " + i);
+                    Thread.sleep(500);
+                }
+            }
+        } catch (InterruptedException e) {
+        }
+    }
+}
+
+class ThreadClass2 extends Thread {
+    private boolean isDivisibleBy2_4_6(int inputNum) {
+        return (inputNum % 2 == 0 && inputNum % 4 == 0 && inputNum % 6 == 0);
+    }
+
+    public void run() {
+        try {
+            for (int i = 1; i <= 100; i++) {
+                if (isDivisibleBy2_4_6(i)) {
+                    System.out.println("Number from T2: " + i);
+                    Thread.sleep(500);
+                }
+            }
+        } catch (InterruptedException e) {
+        }
+    }
+}
+
+public class ThreadClassMain {
+    public static void main(String[] args) {
+        ThreadClass1 t1 = new ThreadClass1();
+        ThreadClass2 t2 = new ThreadClass2();
+        t1.start();
+        t2.start();
+    }
+}
