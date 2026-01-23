@@ -1,0 +1,31 @@
+// MathsEquation.java
+package AdvMath;
+
+public class MathsEquation {
+    double x;
+    int n;
+
+    public MathsEquation(double x) {
+        this.x = x;
+    }
+
+    public MathsEquation(int n) {
+        this.n = n;
+    }
+
+    public void Trigo() {
+        System.out.println("Y=" + (Math.sin(x) + Math.cos(x) + Math.tan(x)));
+    }
+}
+
+
+// MathsMain.java
+import AdvMath.MathsEquation;
+
+public class MathsMain {
+    public static void main(String args[]) {
+        MathsEquation me = new MathsEquation(15.23);
+        MathsEquation meq = new MathsEquation(16);
+        me.Trigo();
+    }
+}
