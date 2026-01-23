@@ -1,0 +1,63 @@
+// Student.java
+package details;
+
+public class Student {
+    String name, dept, grade1, grade2, grade3, usn;
+    double sgpa;
+
+    public Student(String n, String u, String d, String g1, String g2, String g3, double s) {
+        name = n;
+        usn = u;
+        dept = d;
+        grade1 = g1;
+        grade2 = g2;
+        grade3 = g3;
+        sgpa = s;
+    }
+
+    public void show() {
+        System.out.println("Student Name: " + name + " with USN: " + usn + " of Department: " + dept);
+        System.out.println("The Grades are " + grade1 + ", " + grade2 + ", " + grade3);
+        System.out.println("SGPA: " + sgpa);
+    }
+}
+
+
+// Staff.java
+package staffdetails;
+
+public class Staff {
+    String stn, std;
+    int stID;
+    String[] sub = {"Maths", "OOPS", "Database System"};
+
+    public Staff(String sn, int sid, String stdn) {
+        stn = sn;
+        stID = sid;
+        std = stdn;
+    }
+
+    public void show1() {
+        System.out.println("Staff Name: " + stn + " ID: " + stID + " with Designation: " + std);
+        System.out.println("Subjects handled:");
+        for (int i = 0; i < sub.length; i++) {
+            System.out.println(sub[i]);
+        }
+    }
+}
+
+
+
+// Demo.java
+import details.Student;
+import staffdetails.Staff;
+
+public class Demo {
+    public static void main(String args[]) {
+        Student s = new Student("Yash", "1MS21AI032", "AIML", "A", "A", "A", 10);
+        Staff st = new Staff("Roger", 10075, "Professor");
+
+        s.show();
+        st.show1();
+    }
+}
