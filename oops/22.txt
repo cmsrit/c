@@ -1,0 +1,27 @@
+interface Area {
+    double calc(double x, double y);
+}
+
+class Rectangle implements Area {
+    public double calc(double x, double y) {
+        return x * y;
+    }
+}
+
+class Triangle implements Area {
+    public double calc(double x, double y) {
+        return 0.5 * x * y;
+    }
+}
+
+public class Test7 {
+    public static void main(String args[]) {
+        Area a;
+
+        a = new Rectangle();
+        System.out.println("Area of Rectangle is: " + a.calc(10, 20));
+
+        a = new Triangle();
+        System.out.println("Area of Triangle is: " + a.calc(10, 20));
+    }
+}
