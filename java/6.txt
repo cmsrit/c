@@ -1,0 +1,56 @@
+abstract class Bank {
+    String name;
+    double balance;
+
+    Bank(String n, double b) {
+        name = n;
+        balance = b;
+    }
+
+    void calculateInterest() {
+
+        double rate = 0;
+
+        if (this instanceof CityBank)
+            rate = 0.05;
+        else if (this instanceof SBI)
+            rate = 0.06;
+        else if (this instanceof Canara)
+            rate = 0.07;
+
+        double interest = balance * rate;
+
+        System.out.println(name + " Interest = " + interest);
+    }
+}
+
+class CityBank extends Bank {
+    CityBank(double b) {
+        super("CityBank", b);
+    }
+}
+
+class SBI extends Bank {
+    SBI(double b) {
+        super("SBI", b);
+    }
+}
+
+class Canara extends Bank {
+    Canara(double b) {
+        super("Canara", b);
+    }
+}
+
+class Main {
+    public static void main(String args[]) {
+
+        Bank b1 = new CityBank(10000);
+        Bank b2 = new SBI(10000);
+        Bank b3 = new Canara(10000);
+
+        b1.calculateInterest();
+        b2.calculateInterest();
+        b3.calculateInterest();
+    }
+}
