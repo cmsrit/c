@@ -1,0 +1,67 @@
+Phase 1: Burp Suite Setup and Proxy Configuration
+Before assessing the e-commerce site, the proxy environment must be established.
+
+    Launch Burp Suite: Open the application and start a new temporary project with default settings.
+
+    Configure Burp Proxy Listener:
+
+        Navigate to the Proxy tab, then select Proxy settings (or Options).
+
+        Ensure a proxy listener is active on 127.0.0.1 (localhost) at port 8080.
+
+    Configure the Web Browser:
+
+        Open your web browser (e.g., Firefox) and configure its network settings to route traffic through a manual proxy: IP 127.0.0.1 and Port 8080. (Alternatively, use a browser extension like FoxyProxy for quick switching).
+
+    Install the CA Certificate (For HTTPS):
+
+        With the proxy active, navigate to http://burp in the browser.
+
+        Click CA Certificate to download the PortSwigger certificate.
+
+        Import this certificate into your browser's trusted Root Certificate Authorities to allow Burp to seamlessly intercept encrypted HTTPS traffic without triggering browser security warnings.
+
+    Enable Interception: Go to the Proxy -> Intercept tab and ensure Intercept is on.
+
+4. Phase 2: Initiating Automated Scans
+Note: Full automated scanning requires Burp Suite Professional.
+
+    Target Mapping: Browse the e-commerce website naturally (view products, add to cart, visit the login page) to populate the Target -> Site map with the application's structure.
+
+    Launch Scan: From the Dashboard or Site map, click New Scan.
+
+    Configuration: Enter the target URL (e.g., https://ecommerce-target.local). Under scan configuration, select a comprehensive audit focusing on common web vulnerabilities (OWASP Top 10), including SQL Injection, Cross-Site Scripting (XSS), and insecure direct object references.
+
+    Analysis: Let the crawler and scanner run. Once finished, review the Issue activity dashboard to identify flagged vulnerabilities, their severity, and the specific request/response pairs that triggered the alert.
+
+5. Phase 3: Manual Testing of SQL Injection (SQLi)
+Automated tools can miss complex vulnerabilities, so manual verification is critical.
+
+    Capture the Request: With Intercept turned on, attempt to log in to the e-commerce site using dummy credentials (e.g., Username: test, Password: password).
+
+    Send to Repeater: The request will be captured in the Proxy tab. Right-click the intercepted HTTP POST request and select Send to Repeater (Ctrl+R).
+
+    Modify and Test: Go to the Repeater tab. This tool allows you to manually tweak the request and send it multiple times without using the browser.
+
+    Inject Payload: Modify the username parameter to include a single quote to test for backend database syntax errors: username=test'&password=password. Click Send.
+
+    Analyze Response: If the server returns a database error (e.g., "Syntax error in SQL statement"), it indicates the input is interacting directly with the database.
+
+    Exploit: Change the payload to a classic authentication bypass string: username=admin' OR 1=1--&password=anything.
+
+    Result: Click Send. If the response size changes significantly, returns a "200 OK", or shows the account dashboard HTML, you have successfully bypassed authentication via manual SQLi.
+
+6. Phase 4: Proxy Attack with Burp Suite (Intruder)
+Burp Intruder is used to automate customized attacks, such as fuzzing input fields with hundreds of SQLi payloads to find one that bypasses the e-commerce site's defenses.
+
+    Send to Intruder: Right-click the vulnerable login or product search request in the Proxy or Repeater tab and select Send to Intruder (Ctrl+I).
+
+    Set Positions: Go to the Intruder -> Positions tab. Clear the auto-assigned payload markers. Highlight the value of the target parameter (e.g., the username field) and click Add §. The request should look like this: username=§test§&password=password.
+
+    Select Attack Type: Set the Attack type to Sniper (tests one payload set into one position at a time).
+
+    Configure Payloads: Go to the Payloads tab. Under Payload Options, load a predefined wordlist of SQL injection strings (e.g., ' OR '1'='1, admin'--, " OR ""=", etc.).
+
+    Launch Attack: Click Start attack.
+
+    Analyze Results: A new window will appear showing each request. Sort the results by Length or HTTP Status. A successful SQL injection will usually result in a drastically different response length (indicating a successful login or a data dump) compared to the failed login attempts.
