@@ -1,0 +1,66 @@
+Nessus, developed by Tenable Inc., is a widely used vulnerability scanner. It is a remote security scanning tool that performs over 1,200 checks on a target computer to identify vulnerabilities that malicious actors could exploit. It provides a range of services, including vulnerability assessments, network scans, and asset discovery, enabling security professionals to proactively mitigate risks.
+
+3. Installation and Setup (Kali Linux)
+Prerequisite: Ensure you have downloaded the Nessus Essentials package for Debian (Linux-Debian-amd64) from the Tenable website.
+
+    Open your Linux terminal and navigate to the directory where the downloaded file is located.
+
+    Install Nessus using the package manager command:
+    sudo dpkg -i Nessus-<version_number>-debian10_amd64.deb
+
+    Start the Nessus service to ensure it runs in the background:
+    sudo systemctl start nessusd
+    (Note: Ensure this service is running every time you log in to use Nessus).
+
+    Open your web browser and navigate to the Nessus web interface:
+    https://localhost:8834
+
+    A security warning page will appear. Click on Advanced, then select Accept Risk and Continue.
+
+    Select your preferred Nessus Product (choose Nessus Essentials for the free version).
+
+    Enter your name and email address to receive an activation code.
+
+    Paste the activation code into the prompt, and set up your administrator username and password. (If a password change is required later, it can be managed in the user settings).
+
+    Allow Nessus to download and compile the necessary plugins. Once completed, the service is ready for use.
+
+4. Step-by-Step Vulnerability Assessment Approach
+
+Phase 1: Pre-Scan Preparations
+
+    Target Identification: Identify the IP addresses or subnets of the critical host systems (e.g., the Metasploitable2 target machine).
+
+    Authorization: Ensure proper authorization is documented before scanning financial institution assets.
+
+    Service Verification: Confirm the nessusd service is actively running on the scanning machine.
+
+Phase 2: Nessus Configurations
+
+    Navigate to the Scans module in the Nessus web interface and click New Scan.
+
+    Select the appropriate scan template. Use Host Discovery to map the network, followed by a Basic Network Scan or Advanced Scan for deep vulnerability probing.
+
+    Enter the target IP address (e.g., the IP of Metasploitable2).
+
+    Optional but recommended: Configure credentialed scans (providing SSH/SMB credentials) for maximum efficacy and deeper visibility into the local system vulnerabilities.
+
+Phase 3: Execution (Scanning the Targets)
+
+    Choose to run the scan On-Demand (immediately) or Schedule the scan for a specific time/day to avoid disrupting the financial institution's network traffic during peak hours.
+
+    Launch the scan and monitor the progress bar until completion.
+
+Phase 4: Vulnerability Analysis & Prioritization
+
+    Once the scan finishes, click on the completed scan to view the results.
+
+    Analyze the vulnerabilities, which Nessus categorizes by severity: Info, Low, Medium, High, and Critical.
+
+    Prioritize remediation based on the CVSS (Common Vulnerability Scoring System) scores provided for each vulnerability. Focus immediately on Critical and High vulnerabilities that pose a direct threat to the sensitive customer data.
+
+Phase 5: Remediation and Reporting
+
+    Click on individual vulnerabilities to check the detailed description and the specific remediation steps recommended by Nessus.
+
+    Generate a comprehensive report to document the findings. Click Report, select the PDF format, and choose to include the scan summary, identified vulnerabilities, severity levels, CVSS scores, and recommended mitigation actions.
