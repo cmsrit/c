@@ -1,0 +1,30 @@
+Wireshark is a widely used, open-source network protocol analyzer that captures and displays real-time details of network traffic. It offers an in-depth view into network activities at a granular level, making it an essential tool for troubleshooting network performance issues, analyzing network protocols, and identifying potential security threats. It is heavily utilized by academic institutions, corporations, and security professionals to ensure network security and operational smoothness.
+
+3. Prerequisites
+
+    Attacker Machine: Kali Linux VM
+
+    Target Machine: Metasploitable2 VM
+
+    Ensure both virtual machines are powered on and connected to the same local network (e.g., Host-Only or NAT network).
+
+4. Step-by-Step Procedure (Traffic Sniffing)
+
+Phase 1: Setup and Interception
+
+    On the Kali Linux machine, open Wireshark by navigating to:
+    Applications -> Sniffing & Spoofing -> Wireshark
+
+    Upon launching, select the active network interface (typically eth0) that connects to the target machine's network to begin capturing traffic.
+
+Phase 2: Generating Target Traffic
+3. Open a web browser on the Kali Linux machine.
+4. Enter the IP address of the Metasploitable2 VM (e.g., http://192.168.62.129) to access the hosted vulnerable web applications.
+5. Navigate specifically to the Mutillidae or DVWA (Damn Vulnerable Web App) page and locate the user login portal.
+6. Enter dummy credentials into the login form (e.g., Username: admin, Password: 12345) and click submit. This will likely result in a login failure, but the HTTP POST request will be sent across the network.
+
+Phase 3: Traffic Analysis and Data Extraction
+7. Switch back to the Wireshark application, which is actively intercepting the traffic. Stop the capture to freeze the packet list.
+8. To easily find the login attempt, use the display filter bar. Type http and press Enter to filter out non-web traffic. Look specifically for an HTTP packet with the POST method directed at the login.php page.
+9. Right-click on this specific HTTP POST packet, navigate to Follow, and select HTTP Stream.
+10. Observation: A new window will open displaying the raw, unencrypted HTTP traffic stream. Within this stream, you will be able to clearly see the exact username and password (admin / 12345) transmitted in plain text, proving that sensitive data is leaking over the insecure HTTP protocol.
