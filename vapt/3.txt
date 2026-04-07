@@ -1,0 +1,58 @@
+Phase 1: Pre-requisites & Setup
+
+Before Mr. John can sign anything, the cryptographic foundation must be laid.
+
+    Key Generation: Mr. John needs an asymmetric key pair. In CrypTool, this is typically an RSA key pair.
+
+        Private Key: Kept secretly by Mr. John. He uses this to sign the document.
+
+        Public Key: Shared openly with the legal firm. They use this to verify his signature.
+
+    The Document: The legal firm drafts the "Property Purchase Contract" and sends the digital file (e.g., a .txt or .pdf file) to Mr. John.
+
+Phase 2: Demonstrating the Process in CrypTool
+
+Here is the exact workflow you would follow within the CrypTool interface to simulate this transaction:
+1. Creation of the Signature (Action by Mr. John)
+
+To sign the document, Mr. John’s CrypTool application will generate a unique digital fingerprint (Hash) of the contract and encrypt it with his Private Key.
+
+    Step A: Open the contract file within CrypTool.
+
+    Step B: Navigate to the menu: Digital Signatures/PKI -> Sign Document.
+
+    Step C: CrypTool will prompt Mr. John to select a Hash algorithm (e.g., SHA-256) and his designated RSA Private Key.
+
+    Step D: Once confirmed, CrypTool calculates the hash of the contract and encrypts that hash. This resulting encrypted data block is the Digital Signature.
+
+2. Storing the Signature
+
+Once generated, the signature must be securely attached or stored alongside the original document so it can be transmitted back to the legal firm.
+
+    Step A: CrypTool typically outputs the signature in a standard format (often as a separate .p7s or .sig file, or enveloped within an XML/PDF structure depending on the specific CrypTool version).
+
+    Step B: Mr. John saves both the original contract file and the signature file in the same directory.
+
+    Step C: He securely transmits both files back to the legal firm (e.g., via a secure client portal or encrypted email).
+
+    Secure Storage Note: The legal firm should store these paired files in a secure, access-controlled document management system. Mr. John must also securely store his Private Key (usually in a password-protected keystore or a hardware token) so it isn't compromised.
+
+3. Verifying the Signature (Action by the Legal Firm)
+
+When the legal firm receives the files, they must prove two things: Mr. John signed it, and the contract hasn't been maliciously altered in transit.
+
+    Step A: The legal firm opens the received contract file in CrypTool.
+
+    Step B: Navigate to the menu: Digital Signatures/PKI -> Verify Signature (or Verify Document).
+
+    Step C: CrypTool will ask the firm to select the corresponding signature file provided by Mr. John.
+
+    Step D: CrypTool performs the verification process automatically:
+
+        It uses Mr. John's Public Key to decrypt the signature, revealing the original hash created by Mr. John.
+
+        It independently calculates a new hash of the contract file it just received.
+
+        It compares the two hashes.
+
+    Step E: If the hashes match exactly, CrypTool displays a success message indicating the signature is Valid. If even a single comma was changed in the contract after Mr. John signed it, the new hash will be entirely different, and CrypTool will warn the firm that the signature is Invalid (tampering detected).
