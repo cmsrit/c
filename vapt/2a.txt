@@ -1,0 +1,76 @@
+Nmap ("Network Mapper") is a free and open-source utility for network discovery and security auditing. System and network administrators utilize it for network inventory, managing service upgrades, and monitoring host uptime. Nmap uses raw IP packets in novel ways to determine available hosts, services offered (application name and version), operating systems running, packet filters/firewalls in use, and other characteristics. Designed to rapidly scan large networks, it is equally effective against single hosts and is available across all major operating systems.
+
+3. Prerequisites and Setup
+
+    Attacker Machine: Kali Linux VM
+
+    Target Machine: Metasploitable2 VM
+
+    Preparation: 1. Open Kali Linux and ensure the Metasploitable2 virtual machine is running.
+    2. Obtain the IP address of the target machine (e.g., 192.168.62.129).
+    3. Open the terminal in Kali Linux with root/sudo privileges (required for advanced scans).
+
+4. Step-by-Step Procedure (Nmap Scanning)
+
+Phase 1: Basic Scanning & Port Discovery
+Execute the following commands in the Kali Linux terminal to perform basic discovery:
+
+    Ping Scan (Host Discovery): nmap -sn 192.168.62.129 (Determines if the host is up without scanning ports).
+
+    Basic Port Scan: nmap 192.168.62.129 (Scans the top 1000 common TCP ports).
+
+    TCP Connect Scan: nmap -sT 192.168.62.129 (Completes the full 3-way TCP handshake).
+
+    Stealth SYN Scan: nmap -sS 192.168.62.129 (Requires root; sends a SYN packet and resets the connection before logging, evading some basic firewalls).
+
+    UDP Scan: nmap -sU 192.168.62.129 (Scans for open UDP services like DNS or SNMP).
+
+    Specific Port Scan: nmap -p 21,22,80,443 192.168.62.129 (Scans only the specified ports).
+
+    Port Range Scan: nmap -p 1-65535 192.168.62.129 (Scans all possible TCP ports).
+
+    Fast Scan: nmap -F 192.168.62.129 (Scans only the top 100 most common ports).
+
+Phase 2: OS and Service Detection
+9. OS Detection: * Command: nmap -O 192.168.62.129
+
+    Purpose: Uses TCP/IP stack fingerprinting to guess the target's operating system, kernel version, and device type.
+
+    Service Version Detection:
+
+        Command: nmap -sV 192.168.62.129
+
+        Purpose: Probes open ports to determine the exact application name and version number running on them, which is critical for finding specific CVEs.
+
+    Aggressive Scan:
+
+        Command: nmap -A 192.168.62.129
+
+        Purpose: Combines OS detection, service version detection, script scanning, and traceroute into a single command.
+
+Phase 3: Advanced & Vulnerability Scanning
+12. Vulnerability Scan (NSE Scripting):
+* Command: nmap --script vuln 192.168.62.129
+* Purpose: Utilizes the Nmap Scripting Engine (NSE) to automatically probe the target for known vulnerabilities (e.g., outdated Apache versions, SMB vulnerabilities).
+13. Advanced Evasion & Timing:
+* Command: nmap -T4 -f 192.168.62.129
+* Purpose: -T4 speeds up the scan (Aggressive timing), and -f fragments packets to bypass simple intrusion detection systems (IDS).
+14. Output to File (Documentation):
+* Command: nmap -sV --script vuln -oN nmap_audit_report.txt 192.168.62.129
+* Purpose: Saves the scan results to a standard text file for the final write-up.
+
+Phase 4: Custom Scans (Packet Level Manipulation)
+For specialized testing scenarios, use custom flags and protocols:
+
+    Custom TCP Flags: nmap -sS --scanflags SYNFIN -T4 192.168.62.129 (Sets custom TCP flags to observe how the target firewall responds to non-standard packets).
+
+    IP Protocol Scan: nmap -sO 192.168.62.129 (Determines which underlying IP protocols—like ICMP, IGMP, TCP, UDP—are supported by the target).
+
+    Send Ethernet Packets: nmap --send-eth 192.168.62.129 (Bypasses the IP layer and sends raw ethernet frames directly).
+
+    Send IP Packets: nmap --send-ip 192.168.62.129 (Forces Nmap to send raw IP packets rather than using raw ethernet frames).
+
+5. Analysis and Documentation (Findings)
+After running the nmap -sV --script vuln command, the Blue Team analyst must document the findings in the final report.
+
+    Identified Services: Note outdated services (e.g., vsftpd 2.3.4, UnrealIRCd, older Apache versions) found running on Metasploitable2.
