@@ -1,0 +1,39 @@
+# STEP 1: INSTALL AND ENABLE SERVICES (UBUNTU)
+sudo su
+sudo apt update && sudo apt install fail2ban -y
+sudo systemctl status ssh
+sudo systemctl enable fail2ban
+sudo systemctl start fail2ban
+
+# STEP 2: CONFIGURE JAIL
+sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+sudo nano /etc/fail2ban/jail.local
+
+# Add or Edit the [sshd] section:
+[sshd]
+enabled = true
+port = ssh
+maxretry = 3
+findtime = 600
+bantime = 600
+
+# STEP 3: RESTART FAIL2BAN
+sudo systemctl restart fail2ban
+
+# STEP 4: PREPARE WORDLIST (KALI)
+cd /usr/share/wordlists
+sudo gunzip rockyou.txt.gz
+
+# STEP 5: SIMULATE BRUTEFORCE ATTACK (KALI)
+hydra -l ubuntu -P /usr/share/wordlists/rockyou.txt ssh://<UBUNTU_IP>
+
+# STEP 6: OBSERVE BAN AND LOGS (UBUNTU)
+sudo fail2ban-client status sshd
+tail -f /var/log/auth.log
+
+# STEP 7: UNBAN IP AND VERIFY (UBUNTU & KALI)
+# On Ubuntu:
+sudo fail2ban-client set sshd unbanip <KALI_IP>
+
+# On Kali (Verify access restored):
+ssh ubuntu@<UBUNTU_IP>

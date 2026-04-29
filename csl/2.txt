@@ -1,0 +1,79 @@
+# PART A: CREATING SAMPLE.EXE (UBUNTU)
+
+# Step 1: Install Packages
+sudo apt update
+sudo apt install mingw-w64 wine -y
+
+# Step 2: Create Directory
+mkdir malware_lab
+cd malware_lab
+
+# Step 3: Create Source Code
+vi sample.c
+
+# --- SOURCE CODE START ---
+#include <winsock2.h>
+#include <windows.h>
+int main() {
+    WSADATA wsa;
+    SOCKET sock;
+    struct sockaddr_in server;
+    char message[] = "beacon:system_online";
+    WSAStartup(MAKEWORD(2,2), &wsa);
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    server.sin_addr.s_addr = inet_addr("192.168.56.101");
+    server.sin_family = AF_INET;
+    server.sin_port = htons(4444);
+    connect(sock, (struct sockaddr *)&server, sizeof(server));
+    send(sock, message, sizeof(message), 0);
+    closesocket(sock);
+    WSACleanup();
+    return 0;
+}
+# --- SOURCE CODE END ---
+
+# Step 4: Compile Executable
+x86_64-w64-mingw32-gcc sample.c -o sample.exe -lws2_32
+
+# Step 5: Verify
+file sample.exe
+
+
+# PART B: INSPECTION USING RADARE2
+
+# Step 3: Install and Launch Radare2
+sudo apt install snapd -y
+sudo snap install radare2 --classic
+radare2.r2 sample.exe
+
+# Step 4-5: Binary Info & Metadata (Inside Radare2)
+i
+ij
+
+# PART C: STRING ANALYSIS
+# Step 6-7: Extract and Filter Strings
+iz
+izz~beacon
+
+# PART D: IMPORT TABLE ANALYSIS
+# Step 8-9: List Functions and Network APIs
+ii
+ii~WSA
+ii~connect
+ii~send
+
+# PART E: CODE FLOW ANALYSIS
+# Step 10-12: Entry Point and Full Analysis
+ie
+aaa
+afl
+
+# PART F: EMBEDDED RESOURCES & IOC HUNTING
+# Step 15: Check Resources and Rapid Hunting
+iiR
+aaa
+izz~http
+izz~exe
+izz~cmd
+izz~powershell
+ii

