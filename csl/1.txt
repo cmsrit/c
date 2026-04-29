@@ -1,0 +1,84 @@
+1a
+# STEP 1: INSTALLATION (KALI LINUX)
+sudo apt update && sudo apt upgrade -y
+sudo apt install yara -y
+yara --version
+
+# STEP 2: CREATE SAMPLE TEST FILE
+# Option A: EICAR Standard String
+vi sample.exe
+# Paste the following string:
+X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+
+# Option B: Simple Text String
+echo "Student malware lab test: EICAR sample" > simple.exe
+
+# STEP 3: CREATE YARA RULE
+vi eicar_rule.yar
+
+# --- YARA RULE START ---
+rule EICAR_Test_File
+{
+    meta:
+        author = "Lab Student"
+        description = "Detects EICAR antivirus test file"
+        reference = "Standard test signature"
+    strings:
+        $eicar_full = "EICAR-STANDARD-ANTIVIRUS-TEST-FILE" ascii wide nocase
+        $eicar_part = "EICAR" ascii wide nocase
+    condition:
+        any of ($eicar*)
+}
+# --- YARA RULE END ---
+
+# STEP 4: RUN YARA SCAN
+yara eicar_rule.yar sample.exe
+yara eicar_rule.yar simple.exe
+
+
+
+
+1b
+# STEP 1: INSTALLATION AND PREPARATION (KALI LINUX)
+sudo apt update && sudo apt upgrade -y
+sudo apt install yara -y
+yara --version
+
+# STEP 2: CREATE SUSPICIOUS TEST BINARY
+ls /usr/share/windows-resources/binaries/
+cp /usr/share/windows-resources/binaries/nc.exe suspicious.bin
+chmod -x suspicious.bin
+file suspicious.bin
+
+# STEP 3: CREATE YARA RULE
+vi windows_malware_generic.yar
+
+# --- YARA RULE START ---
+rule windows_malware_generic
+{
+    meta:
+        author = "Students"
+        description = "Generic Windows PE malware detection using static indicators"
+        malware_type = "Trojan / Backdoor (Generic)"
+    strings:
+        $api1 = "CreateRemoteThread" ascii nocase
+        $api2 = "VirtualAllocEx" ascii nocase
+        $api3 = "WriteProcessMemory" ascii nocase
+        $cmd = "cmd.exe" ascii nocase
+        $reg = "CurrentVersion\\Run" ascii nocase
+    condition:
+        uint16(0) == 0x5A4D and
+        (any of ($api*) or ($cmd or $reg))
+}
+# --- YARA RULE END ---
+
+# STEP 4: INJECT MALWARE INDICATORS
+echo "CreateRemoteThread" >> suspicious.bin
+echo "cmd.exe" >> suspicious.bin
+echo "VirtualAllocEx" >> suspicious.bin
+
+# STEP 5: VERIFY STRINGS
+strings -a suspicious.bin | grep -Ei "createremotethread|cmd.exe"
+
+# STEP 6: RUN YARA SCAN
+yara windows_malware_generic.yar suspicious.bin
