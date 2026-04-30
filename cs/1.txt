@@ -1,0 +1,35 @@
+import platform, socket
+from datetime import datetime
+
+# 'with open' automatically handles closing the file
+with open("sysinfo_log.txt", "a") as f:
+    f.write("System Information\n")
+    f.write(f"Time: {datetime.now()}\n")
+    f.write(f"OS: {platform.system()} {platform.release()} ({platform.machine()})\n")
+    f.write(f"Host/IP: {platform.node()} - {socket.gethostbyname(socket.gethostname())}\n")
+    f.write("===============================\n\n")
+--------------------------------------------------------
+import time
+import socket
+from datetime import datetime
+
+server = ''
+port = 80
+log_file = ''
+
+def simulate_beacon():
+try:
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.settimeout(3)
+s.connect((server, port))
+s.close()
+return 'Connection successful'
+except:
+return 'Connection failed'
+
+for i in range(5):
+result = simulate_beacon()
+with open(log_file, 'a') as f:
+f.write(f'{datetime.now()} - Beacon attempt to {server}:{port} - {result}\n')
+time.sleep(5)
