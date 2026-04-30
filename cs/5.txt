@@ -1,0 +1,21 @@
+Configure fail2ban
+sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+4. Edit
+sudo nano /etc/fail2ban/jail.local
+5. [sshd]
+enabled = true
+port = ssh
+maxretry = 3
+findtime = 600
+bantime = 600
+
+6. Restart fail2ban
+sudo systemctl restart fail2ban
+
+ON kali 
+cd /usr/share/wordlists
+gunzip rockyou.txt.gz
+hydra -l ubuntu -P /usr/share/Wordlists/rockyou.txt ssh://UBUNTU_IP
+sudo fail2ban-client status sshd
+tail -f /var/log/auth.log
+fail2ban-client ser sshd unbanip <kali linux ip>
