@@ -1,0 +1,25 @@
+cp /usr/share/windows-resources/binaries/nc.exe suspicious.bin
+chmod -x suspicious.bin
+------------------------------
+rule windows_malware_generic
+{
+meta:
+author = &quot;Students”
+description = &quot;Generic Windows PE malware detection using static indicators&quot;
+malware_type = &quot;Trojan / Backdoor (Generic)&quot;
+strings:
+$api1 = &quot;CreateRemoteThread&quot; ascii nocase
+$api2 = &quot;VirtualAllocEx&quot; ascii nocase
+$api3 = &quot;WriteProcessMemory&quot; ascii nocase
+$cmd = &quot;cmd.exe&quot; ascii nocase
+$reg = &quot;CurrentVersion\\Run&quot; ascii nocase
+condition:
+uint16(0) == 0x5A4D and
+any of ($api*) or ($cmd or $reg)
+}
+--------------------------------------
+echo “CreateRemoteThread” >> suspicious.bin
+echo “cmd.exe” >>suspicious.bin
+echo “VirtualAllocEx” >> suspicious.bin
+strings -a suspicious.bin |grep -Ei “createremotethread|cmd.exe”
+yara windows_malware_generic.yar suspicious.bin
