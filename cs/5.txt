@@ -1,0 +1,118 @@
+#include &lt;windows.h&gt;
+#include &lt;stdio.h&gt;
+int main() {
+HKEY hKey;
+HANDLE hFile;
+DWORD bytesWritten;
+char data[] = &quot;System initialized\n&quot;;
+// Create a hidden file (suspicious behavior)
+hFile = CreateFileA(&quot;C:\\Temp\\syslog.txt&quot;, GENERIC_WRITE, 0,NULL,CREATE_ALWAYS,
+FILE_ATTRIBUTE_HIDDEN, NULL);
+WriteFile(hFile, data, sizeof(data), &amp;bytesWritten, NULL);
+CloseHandle(hFile);
+// Add registry persistence
+
+RegCreateKeyExA(HKEY_CURRENT_USER,
+&quot;Software\\Microsoft\\Windows\\CurrentVersion\\Run&quot;, 0,NULL,0,KEY_WRITE,NULL,&amp;hKey,
+NULL);
+RegSetValueExA(hKey,&quot;SystemUpdater&quot;, 0,REG_SZ,(BYTE*)&quot;C:\\Temp\\sample.exe&quot;, 20);
+RegCloseKey(hKey);
+MessageBoxA(NULL, &quot;Service Started&quot;, &quot;System&quot;, MB_OK);
+return 0;
+}
+
+-------------------------
+x86_64-w64-mingw32-gcc sample.c -o sample.exe
+
+
+ghidra
+
+
+Step 9: Import the Suspicious Binary
+1. File → Import File
+2. Select sample.exe
+3. Format: PE
+4. Click OK
+
+Step 10: Analyze the Binary
+When prompted:
+✔ Analyze
+✔ Default analyzers
+✔ PE analyzers
+✔ Decompiler
+Click Analyze
+
+PART C: Initial Binary Inspection
+1. Symbol Tree (Functions &amp; Imports)
+How to open
+Menu bar:
+Window → Symbol Tree
+What you observe
+
+This shows:
+ Functions
+ Imported APIs
+ Exported symbols
+ Labels
+Expand:
+Symbol Tree
+├── Functions
+├── Imports
+└── Labels
+What to check for your sample.exe
+Under Imports, you should see APIs like:
+CreateFileA
+WriteFile
+CloseHandle
+RegCreateKeyExA
+RegSetValueExA
+MessageBoxA
+These APIs reveal the capabilities of the executable.
+Example:
+API Meaning
+CreateFileA File creation
+WriteFile Writing data
+RegCreateKeyEx
+A
+
+Registry key
+creation
+
+RegSetValueExA Registry persistence
+MessageBoxA Popup message
+
+2. Defined Strings
+How to open
+Window → Defined Strings
+What you observe
+This panel shows all text strings inside the executable.
+For your program you should see:
+System Initialized
+C:\Temp\syslog.txt
+Software\Microsoft\Windows\CurrentVersion\Run
+SystemUpdater
+C:\Temp\Sample.exe
+Service Started
+System
+Why it is important
+Strings reveal:
+ file paths
+ registry keys
+ messages
+ commands
+ URLs
+Analysts often start analysis here.
+
+3. Decompiler Window
+How to open
+Window → Decompiler
+What you observe
+This shows C-like reconstructed code from machine instructions.
+Example you might see:
+
+CreateFileA(&quot;C:\\Temp\\syslog.txt&quot;, ...);
+WriteFile(...);
+RegCreateKeyExA(...);
+RegSetValueExA(...);
+MessageBoxA(...);
+This helps you understand the program without reading assembly.
