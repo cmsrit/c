@@ -1,0 +1,18 @@
+PART A – PING FLOOD 1. Check connectivity: ping
+
+2.  Start Wireshark capture on Ubuntu.
+
+3.  Install and run Snort: sudo apt update sudo apt install snort sudo
+    snort -A console -q -c /etc/snort/snort.conf -i eth0
+
+4.  Launch Ping Flood: sudo hping3 –icmp –flood
+
+5.  Observe ICMP flood in Wireshark and Snort alerts.
+
+PART B – SYN FLOOD 1. Open DVWA: http://
+
+2.  Start Wireshark capture.
+
+3.  Launch SYN Flood: sudo hping3 -S –flood -V -p 80
+
+4.  Observe heavy SYN packets and slow website.
