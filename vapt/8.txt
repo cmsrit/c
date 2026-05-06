@@ -1,0 +1,38 @@
+
+STEP 2 – Configure Snort cd /etc/snort sudo vi snort.conf
+
+cd /etc/snort/rules
+
+Files: local.rules -> custom rules icmp.rules -> ICMP detection
+
+Test configuration: sudo snort -T -c /etc/snort/snort.conf
+
+Start Snort: sudo snort -A console -c /etc/snort/snort.conf
+
+
+STEP 3 – Test Detection using Nmap (Kali) nmap
+
+
+STEP 4 – Detect Ping Attack ping
+
+
+STEP 5 – Create Custom Snort Rules cd /etc/snort/rules sudo vi
+local.rules
+
+ICMP Rule: alert icmp $EXTERNAL_NET any -> $HOME_NET any (msg:“ICMP Ping
+Detected”; sid:5889; rev:1;)
+
+FTP Rule: alert tcp any any -> $HOME_NET 21 (msg:“FTP Attempted”;
+sid:60001; rev:1;)
+
+SSH Rule: alert tcp any any -> $HOME_NET 22 (msg:“SSH Attempted”;
+sid:60002; rev:1;)
+
+------------------------------------------------------------------------
+
+STEP 6 – Verify Configuration sudo snort -T -c /etc/snort/snort.conf
+sudo snort -A console -c /etc/snort/snort.conf
+
+------------------------------------------------------------------------
+
+STEP 7 – Trigger Alerts from Kali ping ftp ssh ubuntu@<IP>
