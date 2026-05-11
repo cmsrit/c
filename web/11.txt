@@ -1,0 +1,48 @@
+import React, { useState } from "react";
+function App() {
+  const [status, setStatus] = useState(false);
+  function toggleSwitch() {
+    setStatus(!status);
+  }
+  return (
+    <div style={styles.container}>
+      <div style={styles.card}>
+        <h1>Toggle Application</h1>
+        <h2 style={{
+          color: status ? "green" : "red"
+        }}>
+          {status ? "System is ON" : "System is OFF"}
+        </h2>
+        <button
+          onClick={toggleSwitch}
+          style={{
+            ...styles.button,
+            backgroundColor: status ? "green" : "red"
+          }}
+        >
+          {status ? "Turn OFF" : "Turn ON"}
+        </button>
+      </div>
+    </div>
+  );
+}
+const styles = {
+  container: {
+    height: "100vh",
+    display: "flex",   },
+  card: {
+    width: "350px",
+    padding: "30px",
+    textAlign: "center",
+    backgroundColor: "white",     },
+  button: {
+    padding: "12px 25px",
+    fontSize: "18px",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer"
+  }
+};
+
+export default App;
