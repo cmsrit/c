@@ -1,0 +1,18 @@
+import React, { useState } from "react";
+function App() {
+  const [name, setName] = useState("");
+  const date = new Date().toDateString();
+  return (
+    <div style={{textAlign:"center", marginTop:"100px"}}>
+      <h2>Current Date</h2>
+      <h3>{date}</h3>
+      <input
+        type="text"
+        placeholder="Enter your name"
+        onChange={(e) => setName(e.target.value)}
+      />
+      <h2>Hello {name}</h2>
+    </div>
+  );
+}
+export default App;
