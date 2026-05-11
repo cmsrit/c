@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profile</title>
+    <style>
+        .card { background: white; padding: 20px; border-radius: 10px; text-align: center; width: 250px; margin-top: 50px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        img { width: 100px; border-radius: 50%; }
+      
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <img src="https://via.placeholder.com/100" alt="Profile Picture">
+        <h2 id="name">Jane Doe</h2>
+        <p>Web Developer & Designer</p>
+        <p>Location: New York, USA</p>
+        <button onclick="changeName()">Update Name</button>
+    </div>
+
+    <script>
+        function changeName() {
+            const newName = prompt("Enter new name:");
+            if (newName) {
+                document.getElementById("name").innerText = newName;
+            }
+        }
+    </script>
+</body>
+</html>
