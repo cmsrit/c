@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Animation</title>
+
+    <style>
+        body{
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+        }
+
+        #text{
+            font-size:20px;
+            font-weight:bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1 id="text">Shrinking and Enlarging Text</h1>
+
+    <script>
+        let text = document.getElementById("text");
+
+        let size = 20;
+        let change = 2;
+
+        setInterval(function () {
+
+            size = size + change;
+
+            if (size >= 50) {
+                change = -2;
+                text.innerHTML = "Text Shrinking";
+                text.style.color = "red";
+            }
+
+            if (size <= 20) {
+                change = 2;
+                text.innerHTML = "Text Enlarging";
+                text.style.color = "green";
+            }
+
+            text.style.fontSize = size + "px";
+
+        }, 100);
+    </script>
+
+</body>
+</html>
