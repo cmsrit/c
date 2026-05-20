@@ -1,0 +1,31 @@
+#include<stdio.h>
+#define V 7 // change this if ur matrix size changes
+#define INF 999
+int main() {
+    int g[V][V] = { // change the values in adjacency matrix if needed mind the dimensions
+        {0,0,1,2,0,0,0},
+        {0,0,2,0,0,3,0},
+        {1,2,0,1,3,0,0},
+        {2,0,1,0,0,0,1},
+        {0,0,3,0,0,2,0},
+        {0,3,0,0,2,0,1},
+        {0,0,0,1,0,1,0}
+    };
+    int d[V], v[V]={0}, i, j, min, u, s=0;
+    for(i=0;i<V;i++){
+        d[i]=INF;}
+    d[s]=0;
+    for(i=0;i<V-1;i++) {
+        min=INF;
+        for(j=0;j<V;j++){
+            if(!v[j] && d[j]<min){
+                min=d[j], u=j;}}
+        v[u]=1;
+        for(j=0;j<V;j++){
+            if(!v[j] && g[u][j] && d[u]+g[u][j]<d[j]){
+                d[j]=d[u]+g[u][j];}}
+    }
+    printf("Distance from Vertex \t Distance\n");
+    for(i=0;i<V;i++)
+        printf("Distance from %d \t %d \n",i,d[i]);
+    return 0;}
