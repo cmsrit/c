@@ -1,0 +1,64 @@
+SERVER → server.c
+#include<stdio.h>
+#include<unistd.h>
+#include<arpa/inet.h>
+int main(){
+    int s,ns,n;
+    char f[20],b[100];
+    FILE *fp;
+    struct sockaddr_in a,c;
+    s=socket(AF_INET,SOCK_STREAM,0);
+    a.sin_family=AF_INET;
+    a.sin_addr.s_addr=INADDR_ANY;
+    a.sin_port=htons(5035);
+    bind(s,(void*)&a,sizeof(a));
+    listen(s,5);
+    n=sizeof(c);
+    ns=accept(s,(void*)&c,&n);
+    read(ns,f,20);
+    fp=fopen(f,"r");
+    while(fgets(b,100,fp))   {
+        write(ns,b,100);
+    }
+printf("File contents transferred successfully\n"); 
+    fclose(fp);
+}
+--------------------------
+ CLIENT → client.c
+#include<stdio.h>
+#include<unistd.h>
+#include<arpa/inet.h>
+int main(){
+    int s,n;
+    char f[20],b[100];
+    struct sockaddr_in a;
+    s=socket(AF_INET,SOCK_STREAM,0);
+    a.sin_family=AF_INET;
+    a.sin_addr.s_addr=inet_addr("127.0.0.1");
+    a.sin_port=htons(5035);
+    connect(s,(void*)&a,sizeof(a));
+    printf("Enter file name : ");
+    scanf("%s",f);
+    write(s,f,20);
+    while((n=read(s,b,100))>0)  {
+        printf("%s",b);
+    }
+}
+--------------------
+HOW TO EXECUTE
+
+Once write both C files 
+Command → vi hello.txt
+Now put content anything like->
+Hello from TCP Server
+MSRIT Lab Exam
+Compile both using this command
+gcc server.c -o server 
+gcc client.c -o client
+Now u need to open one more terminal in same directory
+
+In one terminal do 
+./server and other terminal ./client
+
+Now client wala terminal will ask which file enter 
+hello.txt 
