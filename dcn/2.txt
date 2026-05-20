@@ -1,0 +1,40 @@
+ #include<stdio.h>
+int main() {
+    int h[7], r[7], i, c1, c2, c3, e;
+    printf("Enter 4 data bits:\n");
+    scanf("%d%d%d%d",&h[0],&h[1],&h[2],&h[4]);
+    h[6] = h[0]^h[2]^h[4];
+    h[5] = h[0]^h[1]^h[4];
+    h[3] = h[0]^h[1]^h[2];
+    printf("\nEncoded data is: ");
+    for(i=0;i<7;i++) {
+        printf("%d",h[i]);
+    }
+    printf("\n\nEnter received data:\n");
+    for(i=0;i<7;i++) {
+        scanf("%d",&r[i]);
+    }
+    c1 = r[6]^r[4]^r[2]^r[0];
+    c2 = r[5]^r[4]^r[1]^r[0];
+    c3 = r[3]^r[2]^r[1]^r[0];
+    e = c3*4 + c2*2 + c1;
+    if(e==0) {
+        printf("\nNo error while transmission of data\n");
+    }
+    else {
+        printf("\nError detected at position %d",e);
+        printf("\nData sent    : ");
+        for(i=0;i<7;i++) {
+            printf("%d",h[i]);
+        }
+        printf("\nData received: ");
+        for(i=0;i<7;i++) {
+            printf("%d",r[i]);
+        }
+        r[7-e] ^= 1;
+        printf("\nCorrected data: ");
+        for(i=0;i<7;i++) {
+            printf("%d",r[i]);
+        }
+    }
+    return 0; }
