@@ -1,0 +1,19 @@
+#include<stdio.h>
+int main() {
+    int b, out, n, in, store = 0, sent;
+    printf("Enter bucket size, output rate, no of inputs: ");
+    scanf("%d%d%d", &b, &out, &n);
+    while(n--) {
+        printf("Enter incoming packets: ");
+        scanf("%d", &in);
+        store += in;
+        if(store > b) {
+            printf("%d packets dropped\n", store - b);
+            store = b;
+        }
+        sent = (store < out) ? store : out;
+        printf("%d packets sent\n", sent);
+        store -= sent;
+        printf("Packets left: %d\n", store);
+    }
+}
