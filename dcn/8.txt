@@ -1,0 +1,54 @@
+#include<stdio.h>
+#include<string.h>
+char d[50],r[20],g[]="10001000000100001";
+void crc() {
+    strcpy(r,d);
+    for(int i=0;i<strlen(d)-16;i++)  {
+        if(r[i]=='1')   {
+            for(int j=0;j<17;j++)    {
+                r[i+j]=(r[i+j]==g[j])?'0':'1';
+            }   }    }  }
+
+int main() {
+    int n,ch,p,f=0;
+    printf("Enter data : ");
+    scanf("%s",d);
+    n=strlen(d);
+    printf("\nGenerating polynomial : %s",g);
+    for(int i=n;i<n+16;i++)     {
+        d[i]='0';
+ 	   }
+    d[n+16]='\0';
+    printf("\nModified data is : %s",d);
+    crc();
+    printf("\nCRC checksum is : ");
+    for(int i=n;i<n+16;i++)  {
+        printf("%c",r[i]);
+        d[i]=r[i];
+    }
+    printf("\nFinal codeword transmitted is : %s",d);
+    printf("\nTest error detection 0(yes) 1(no)? : ");
+    scanf("%d",&ch);
+    if(ch==0)  {
+        printf("Enter error position : ");
+        scanf("%d",&p);
+        d[p-1]=(d[p-1]=='0')?'1':'0';
+        printf("\nErroneous data : %s",d);
+    }
+    crc();
+    for(int i=n;i<n+16;i++)  {
+        if(r[i]=='1')   {
+            f=1;
+        }
+    }
+    printf("\nCRC checksum is : %s",r+n);
+    if(f) {
+        printf("\nError detected");
+    }
+    else  {
+        printf("\nNo error detected");
+    }
+    return 0;
+}
+
+
