@@ -1,0 +1,104 @@
+server.c
+#include <stdio.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <string.h>
+
+int main() {
+    int s, ns;
+    socklen_t n;
+    char f[20], b[100];
+    FILE *fp;
+    struct sockaddr_in a, c;
+
+    s = socket(AF_INET, SOCK_STREAM, 0);
+    
+    a.sin_family = AF_INET;
+    a.sin_addr.s_addr = INADDR_ANY;
+    a.sin_port = htons(5035);
+    
+    bind(s, (struct sockaddr*)&a, sizeof(a));
+    listen(s, 5);
+    
+    n = sizeof(c);
+    ns = accept(s, (struct sockaddr*)&c, &n);
+    
+    memset(f, 0, sizeof(f));
+    read(ns, f, 19);
+    
+    fp = fopen(f, "r");
+    if (fp == NULL) {
+        char *err = "Error: File not found\n";
+        write(ns, err, strlen(err));
+        close(ns);
+        close(s);
+        return 0;
+    }
+    
+    while (fgets(b, sizeof(b), fp)) {
+        write(ns, b, strlen(b));
+    }
+    
+    printf("File contents transferred successfully\n"); 
+    
+    fclose(fp);
+    close(ns);
+    close(s);
+    return 0;
+}
+----------------
+client.c
+#include <stdio.h>
+#include <unistd.h>
+#include <arpa/inet.h>
+#include <string.h>
+
+int main() {
+    int s, n;
+    char f[20], b[100];
+    struct sockaddr_in a;
+
+    s = socket(AF_INET, SOCK_STREAM, 0);
+    
+    a.sin_family = AF_INET;
+    a.sin_addr.s_addr = inet_addr("127.0.0.1");
+    a.sin_port = htons(5035);
+    
+    connect(s, (struct sockaddr*)&a, sizeof(a));
+    
+    printf("Enter file name: ");
+    scanf("%s", f);
+    
+    write(s, f, strlen(f));
+    
+    printf("\n--- File Contents ---\n");
+    while ((n = read(s, b, sizeof(b) - 1)) > 0) {
+        b[n] = '\0';
+        printf("%s", b);
+    }
+    printf("\n---------------------\n");
+
+    close(s);
+    return 0;
+}
+
+
+---------------------
+How to Execute
+
+1. Create a dummy test file
+
+echo -e "Hello from TCP Server\nMSRIT Lab Exam" > hello.txt
+
+2. Compile both programs
+gcc server.c -o server
+gcc client.c -o client
+
+3. Run the Server (Terminal 1)
+./server
+4. Run the Client (Terminal 2)
+./client
+
+5. Complete the request
+When the client terminal prompts you, type the file name:
+Enter file name: hello.txt
