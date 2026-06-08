@@ -1,0 +1,69 @@
+# EXERCISE 1: SYSTEM INFORMATION COLLECTION SIMULATION
+
+# 1a: Verify Python
+python3 --version
+
+# 1b: Create Program
+mkdir malware_lab
+cd malware_lab
+vi system_info_malware.py
+
+# --- CODE START ---
+import platform
+import socket
+from datetime import datetime
+
+file = open("sysinfo_log.txt", "a")
+file.write("System Information\n")
+file.write("Date & Time: " + str(datetime.now()) + "\n")
+file.write("System: " + platform.system() + "\n")
+file.write("Node Name: " + platform.node() + "\n")
+file.write("Release: " + platform.release() + "\n")
+file.write("Version: " + platform.version() + "\n")
+file.write("Machine: " + platform.machine() + "\n")
+file.write("Processor: " + platform.processor() + "\n")
+file.write("IP Address: " + socket.gethostbyname(socket.gethostname()) + "\n")
+file.write("===============================\n\n")
+file.close()
+# --- CODE END ---
+
+# 1c-d: Execute and View Output
+python3 system_info_malware.py
+cat sysinfo_log.txt
+
+
+# EXERCISE 2: SIMULATED NETWORK BEACONING
+
+# 2a: Create Program
+cd ~/malware_lab
+vi network_beacon_simulation.py
+
+# --- CODE START ---
+import time
+import socket
+from datetime import datetime
+
+server = "example.com"
+port = 80
+log_file = "network_activity.log"
+
+def simulate_beacon():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(3)
+        s.connect((server, port))
+        s.close()
+        return "Connection successful"
+    except:
+        return "Connection failed"
+
+for i in range(5):
+    result = simulate_beacon()
+    with open(log_file, "a") as f:
+        f.write(f"{datetime.now()} - Beacon attempt to {server}:{port} - {result}\n")
+    time.sleep(5)
+# --- CODE END ---
+
+# 2b-c: Execute and View Output
+python3 network_beacon_simulation.py
+cat network_activity.log

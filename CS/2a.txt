@@ -1,0 +1,35 @@
+# STEP 1: INSTALLATION (KALI LINUX)
+sudo apt update && sudo apt upgrade -y
+sudo apt install yara -y
+yara --version
+
+# STEP 2: CREATE SAMPLE TEST FILE
+# Option A: EICAR Standard String
+vi sample.exe
+# Paste the following string:
+X5O!P%@AP[4\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*
+
+# Option B: Simple Text String
+echo "Student malware lab test: EICAR sample" > simple.exe
+
+# STEP 3: CREATE YARA RULE
+vi eicar_rule.yar
+
+# --- YARA RULE START ---
+rule EICAR_Test_File
+{
+    meta:
+        author = "Lab Student"
+        description = "Detects EICAR antivirus test file"
+        reference = "Standard test signature"
+    strings:
+        $eicar_full = "EICAR-STANDARD-ANTIVIRUS-TEST-FILE" ascii wide nocase
+        $eicar_part = "EICAR" ascii wide nocase
+    condition:
+        any of ($eicar*)
+}
+# --- YARA RULE END ---
+
+# STEP 4: RUN YARA SCAN
+yara eicar_rule.yar sample.exe
+yara eicar_rule.yar simple.exe
